@@ -9,6 +9,7 @@ import PngToWebp from "./pages/PngToWebp";
 import ImageResizer from "./pages/ImageResizer";
 import CompressToKb from "./pages/CompressToKb";
 
+
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
@@ -144,6 +145,8 @@ function App() {
               </>
             }
           />
+
+         
 
           {/* ABOUT */}
           <Route

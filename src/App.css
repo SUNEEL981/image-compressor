@@ -49,6 +49,7 @@ a {
   min-height: 100vh;
 }
 
+
 /* =========================================================
    NAVBAR
    ========================================================= */
@@ -102,6 +103,7 @@ a {
   color: #111827;
 }
 
+
 /* =========================================================
    MAIN
    ========================================================= */
@@ -111,6 +113,7 @@ main {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
 }
+
 
 /* =========================================================
    HERO
@@ -167,6 +170,7 @@ main {
   line-height: 1.75;
 }
 
+
 /* =========================================================
    MAIN UPLOAD CARD
    ========================================================= */
@@ -191,6 +195,7 @@ main {
   line-height: 1.3;
 }
 
+
 /* =========================================================
    MULTI IMAGE COMPRESSOR
    ========================================================= */
@@ -198,6 +203,7 @@ main {
 .multi-compressor {
   width: 100%;
 }
+
 
 /* =========================================================
    UPLOAD AREA
@@ -312,6 +318,7 @@ main {
   font-size: 11px;
 }
 
+
 /* =========================================================
    ERROR
    ========================================================= */
@@ -330,223 +337,6 @@ main {
   line-height: 1.5;
 }
 
-/* =========================================================
-   TARGET SIZE SELECTOR
-   ========================================================= */
-
-.target-size-panel {
-  width: 100%;
-
-  margin-bottom: 28px;
-  padding: 24px;
-
-  border: 1px solid #e6e9ee;
-  border-radius: 16px;
-
-  background: #fafbfc;
-}
-
-.target-size-heading {
-  text-align: center;
-}
-
-.target-size-heading h2 {
-  margin: 0;
-
-  color: #111827;
-
-  font-size: 19px;
-  line-height: 1.3;
-  font-weight: 750;
-  letter-spacing: -0.3px;
-}
-
-.target-size-heading p {
-  max-width: 500px;
-
-  margin: 6px auto 0;
-
-  color: #667085;
-
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* Preset buttons */
-
-.target-options {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin-top: 20px;
-}
-
-.target-option {
-  min-width: 78px;
-  height: 40px;
-
-  padding: 0 14px;
-
-  border: 1px solid #dfe3e8;
-  border-radius: 9px;
-
-  background: #ffffff;
-  color: #475467;
-
-  font-size: 13px;
-  font-weight: 650;
-
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    transform 0.18s ease;
-}
-
-.target-option:hover {
-  border-color: #111827;
-  color: #111827;
-
-  transform: translateY(-1px);
-}
-
-.target-option.active {
-  border-color: #111827;
-
-  background: #111827;
-  color: #ffffff;
-}
-
-/* Custom size */
-
-.custom-size-section {
-  width: min(340px, 100%);
-
-  margin: 20px auto 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 11px;
-}
-
-.custom-size-section label {
-  color: #475467;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.custom-target {
-  width: 180px;
-  height: 40px;
-
-  margin-top: 0;
-
-  display: flex;
-  align-items: center;
-
-  overflow: hidden;
-
-  border: 1px solid #dfe3e8;
-  border-radius: 9px;
-
-  background: #ffffff;
-
-  transition: border-color 0.18s ease;
-}
-
-.custom-target:focus-within {
-  border-color: #111827;
-}
-
-.custom-target input {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-
-  padding: 0 11px;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-  color: #111827;
-
-  font-size: 13px;
-}
-
-.custom-target input::placeholder {
-  color: #98a2b3;
-}
-
-.custom-target span {
-  flex-shrink: 0;
-
-  padding-right: 11px;
-
-  color: #667085;
-
-  font-size: 12px;
-}
-
-/* Selected target */
-
-.selected-target-box {
-  width: fit-content;
-  min-width: 150px;
-
-  margin: 17px auto 0;
-  padding: 8px 14px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  border: 1px solid #e0e4e9;
-  border-radius: 9px;
-
-  background: #ffffff;
-}
-
-.selected-target-box span {
-  color: #667085;
-  font-size: 12px;
-}
-
-.selected-target-box strong {
-  color: #111827;
-
-  font-size: 13px;
-  font-weight: 750;
-}
-
-/* Target note */
-
-.target-note {
-  margin: 10px 0 0;
-
-  color: #98a2b3;
-
-  font-size: 11px;
-  line-height: 1.5;
-
-  text-align: center;
-}
-
-.target-note strong {
-  color: #667085;
-  font-weight: 650;
-}
 
 /* =========================================================
    MULTI TOOLBAR
@@ -602,6 +392,7 @@ main {
 .multi-actions button {
   margin: 0;
 }
+
 
 /* =========================================================
    BUTTONS
@@ -685,6 +476,7 @@ main {
   opacity: 0.5;
 }
 
+
 /* =========================================================
    FILE LIST
    ========================================================= */
@@ -730,6 +522,7 @@ main {
     0 3px 12px rgba(15, 23, 42, 0.035);
 }
 
+
 /* File info */
 
 .multi-file-info {
@@ -758,6 +551,7 @@ main {
 
   font-size: 12px;
 }
+
 
 /* =========================================================
    FILE STATUS
@@ -809,6 +603,7 @@ main {
   line-height: 1.5;
 }
 
+
 /* =========================================================
    PROGRESS
    ========================================================= */
@@ -853,6 +648,7 @@ main {
 
   text-align: right;
 }
+
 
 /* =========================================================
    FILE ACTION BUTTONS
@@ -919,6 +715,7 @@ main {
 
   color: #111827;
 }
+
 
 /* =========================================================
    SINGLE IMAGE TOOLS
@@ -1005,6 +802,7 @@ main {
   font-size: 11px;
 }
 
+
 /* =========================================================
    STATUS
    ========================================================= */
@@ -1031,6 +829,7 @@ main {
   color: #a36b00 !important;
 }
 
+
 /* =========================================================
    ACTION ROW
    ========================================================= */
@@ -1046,6 +845,7 @@ main {
 .action-row .compress-button {
   margin-top: 0;
 }
+
 
 /* =========================================================
    PREVIEW
@@ -1095,6 +895,7 @@ main {
   font-size: 9px;
   font-weight: 600;
 }
+
 
 /* =========================================================
    HOME / TOOL GRID
@@ -1150,6 +951,7 @@ main {
   font-size: 14px;
   line-height: 1.7;
 }
+
 
 /* =========================================================
    FEATURES
@@ -1209,6 +1011,7 @@ main {
   line-height: 1.7;
 }
 
+
 /* =========================================================
    PRIVACY SECTION
    ========================================================= */
@@ -1263,6 +1066,7 @@ main {
   line-height: 1.7;
 }
 
+
 /* =========================================================
    CONTENT PAGES
    ========================================================= */
@@ -1315,6 +1119,7 @@ main {
 
   background: #f7f8fa;
 }
+
 
 /* =========================================================
    FOOTER
@@ -1401,6 +1206,7 @@ main {
   font-size: 12px;
 }
 
+
 /* =========================================================
    404
    ========================================================= */
@@ -1481,6 +1287,7 @@ main {
   background: #000000;
 }
 
+
 /* =========================================================
    TABLET
    ========================================================= */
@@ -1520,6 +1327,7 @@ main {
   }
 }
 
+
 /* =========================================================
    SMALL TABLET
    ========================================================= */
@@ -1547,6 +1355,7 @@ main {
     width: 100%;
   }
 }
+
 
 /* =========================================================
    MOBILE
@@ -1642,66 +1451,6 @@ main {
   }
 }
 
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 600px) {
-  .target-size-panel {
-    padding: 20px 15px;
-
-    margin-bottom: 20px;
-  }
-
-  .target-size-heading h2 {
-    font-size: 18px;
-  }
-
-  .target-size-heading p {
-    font-size: 12px;
-  }
-
-  .target-options {
-    gap: 7px;
-
-    margin-top: 17px;
-  }
-
-  .target-option {
-    min-width: 68px;
-    height: 38px;
-
-    padding: 0 10px;
-
-    font-size: 12px;
-  }
-
-  .custom-size-section {
-    width: 100%;
-
-    flex-direction: column;
-
-    gap: 7px;
-  }
-
-  .custom-target {
-    width: 100%;
-    max-width: 240px;
-  }
-
-  .selected-target-box {
-    margin-top: 15px;
-  }
-
-  .action-row {
-    flex-direction: column;
-  }
-
-  .download-all-button,
-  .download-button {
-    min-height: 44px;
-  }
-}
 
 /* =========================================================
    VERY SMALL MOBILE
