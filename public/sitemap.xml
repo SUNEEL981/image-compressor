@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
-    <loc>https://YOUR-DOMAIN.com/</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/jpg-compressor</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/jpg-compressor</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/png-compressor</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/png-compressor</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/webp-compressor</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/webp-compressor</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/jpg-to-webp</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/jpg-to-webp</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/png-to-webp</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/png-to-webp</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/image-resizer</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/image-resizer</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/compress-to-kb</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/compress-to-kb</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/about</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/about</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/privacy-policy</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/privacy-policy</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/terms</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/terms</loc>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/contact</loc>
+    <loc>https://image-compressor-drab-pi.vercel.app/contact</loc>
   </url>
+
 </urlset>
