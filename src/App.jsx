@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import Home from "./pages/Home";
 import JpgCompressor from "./pages/JpgCompressor";
@@ -8,7 +9,6 @@ import JpgToWebp from "./pages/JpgToWebp";
 import PngToWebp from "./pages/PngToWebp";
 import ImageResizer from "./pages/ImageResizer";
 import CompressToKb from "./pages/CompressToKb";
-
 
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -20,9 +20,47 @@ import SEO from "./components/SEO";
 
 import "./App.css";
 
+/* ================= SCROLL TO TOP ================= */
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const start = window.scrollY;
+
+    if (start === 0) return;
+
+    const duration = 450;
+    const startTime = performance.now();
+
+    function scrollStep(currentTime) {
+      const progress = Math.min(
+        (currentTime - startTime) / duration,
+        1
+      );
+
+      // Smooth ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      window.scrollTo(0, start * (1 - eased));
+
+      if (progress < 1) {
+        requestAnimationFrame(scrollStep);
+      }
+    }
+
+    requestAnimationFrame(scrollStep);
+  }, [pathname]);
+
+  return null;
+}
+/* ================= APP ================= */
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
+
       <div className="app">
         <Routes>
 
@@ -146,8 +184,6 @@ function App() {
             }
           />
 
-         
-
           {/* ABOUT */}
           <Route
             path="/about"
@@ -230,6 +266,8 @@ function App() {
     </BrowserRouter>
   );
 }
+
+/* ================= 404 ================= */
 
 function NotFound() {
   return (
