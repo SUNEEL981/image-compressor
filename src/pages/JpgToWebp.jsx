@@ -4,7 +4,7 @@ export default function JpgToWebp() {
   return (
     <ConvertPage
       title="JPG to WebP Converter"
-      description="Convert JPG and JPEG images to WebP."
+      description="Convert JPG and JPEG images to WebP online for free. Create smaller, web-friendly image files quickly."
       accepted="image/jpeg,.jpg,.jpeg"
       outputType="image/webp"
       outputName="webp"

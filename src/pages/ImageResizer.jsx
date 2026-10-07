@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import {
   loadImage,
@@ -33,9 +34,7 @@ export default function ImageResizer() {
     setWidth(value);
 
     if (lock && value) {
-      setHeight(
-        Math.round(Number(value) / ratio)
-      );
+      setHeight(Math.round(Number(value) / ratio));
     }
   }
 
@@ -43,9 +42,7 @@ export default function ImageResizer() {
     setHeight(value);
 
     if (lock && value) {
-      setWidth(
-        Math.round(Number(value) * ratio)
-      );
+      setWidth(Math.round(Number(value) * ratio));
     }
   }
 
@@ -70,11 +67,7 @@ export default function ImageResizer() {
     );
 
     const blob = await new Promise((resolve) =>
-      canvas.toBlob(
-        resolve,
-        "image/jpeg",
-        0.9
-      )
+      canvas.toBlob(resolve, "image/jpeg", 0.9)
     );
 
     const url = URL.createObjectURL(blob);
@@ -107,11 +100,11 @@ export default function ImageResizer() {
             IMAGE RESIZER
           </span>
 
-          <h1>Resize Image</h1>
+          <h1>Resize Images Online</h1>
 
           <p>
             Resize JPG, PNG and WebP images to custom
-            dimensions.
+            dimensions while keeping the original aspect ratio.
           </p>
         </section>
 
@@ -119,17 +112,13 @@ export default function ImageResizer() {
           {!file ? (
             <div
               className="upload-area"
-              onClick={() =>
-                inputRef.current?.click()
-              }
+              onClick={() => inputRef.current?.click()}
             >
               <div className="upload-icon">↑</div>
 
               <h3>Upload image</h3>
 
-              <p>
-                JPG, PNG or WebP
-              </p>
+              <p>JPG, PNG or WebP</p>
 
               <button className="upload-button">
                 Choose Image
@@ -179,13 +168,9 @@ export default function ImageResizer() {
                         ? "target-option active"
                         : "target-option"
                     }
-                    onClick={() =>
-                      setLock(!lock)
-                    }
+                    onClick={() => setLock(!lock)}
                   >
-                    {lock
-                      ? "🔒 Locked"
-                      : "🔓 Unlock"}
+                    {lock ? "🔒 Locked" : "🔓 Unlock"}
                   </button>
                 </div>
               </div>
@@ -202,24 +187,24 @@ export default function ImageResizer() {
                   <div className="preview-wrapper">
                     <div className="preview-box">
                       <span>Original</span>
+
                       <img
                         src={preview}
-                        alt="Original"
+                        alt="Original image"
                       />
-                      <p>
-                        {formatBytes(file.size)}
-                      </p>
+
+                      <p>{formatBytes(file.size)}</p>
                     </div>
 
                     <div className="preview-box">
                       <span>Resized</span>
+
                       <img
                         src={result.url}
-                        alt="Resized"
+                        alt="Resized image"
                       />
-                      <p>
-                        {formatBytes(result.size)}
-                      </p>
+
+                      <p>{formatBytes(result.size)}</p>
                     </div>
                   </div>
 
@@ -233,6 +218,42 @@ export default function ImageResizer() {
               )}
             </>
           )}
+        </section>
+
+        <section className="privacy-section">
+          <h2>Resize Images for Different Uses</h2>
+
+          <p>
+            Resize images to custom width and height values for
+            websites, social media, documents and online forms.
+            The aspect-ratio lock helps keep image proportions consistent.
+          </p>
+        </section>
+
+        <section className="privacy-section">
+          <h2>More Image Tools</h2>
+
+          <div className="tool-grid">
+            <Link to="/jpg-compressor" className="tool-card">
+              <h3>JPG Image Compressor</h3>
+              <p>Reduce JPG and JPEG image file size.</p>
+            </Link>
+
+            <Link to="/png-compressor" className="tool-card">
+              <h3>PNG Image Compressor</h3>
+              <p>Compress PNG images online.</p>
+            </Link>
+
+            <Link to="/webp-compressor" className="tool-card">
+              <h3>WebP Image Compressor</h3>
+              <p>Reduce WebP image file size.</p>
+            </Link>
+
+            <Link to="/compress-to-kb" className="tool-card">
+              <h3>Compress Image to Specific KB</h3>
+              <p>Target a specific image file size.</p>
+            </Link>
+          </div>
         </section>
       </main>
     </>

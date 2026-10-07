@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import {
   MAX_FILE_SIZE,
@@ -116,13 +117,9 @@ export default function ConvertPage({
             >
               <div className="upload-icon">↑</div>
 
-              <h3>
-                Upload {label}
-              </h3>
+              <h3>Upload {label}</h3>
 
-              <p>
-                Maximum file size: 20 MB
-              </p>
+              <p>Maximum file size: 20 MB</p>
 
               <button className="upload-button">
                 Choose Image
@@ -143,6 +140,7 @@ export default function ConvertPage({
               <div className="selected-file">
                 <div>
                   <strong>{file.name}</strong>
+
                   <span>
                     {formatBytes(file.size)}
                   </span>
@@ -175,7 +173,7 @@ export default function ConvertPage({
 
                       <img
                         src={preview}
-                        alt="Original"
+                        alt={`Original ${label} image`}
                       />
 
                       <p>
@@ -190,13 +188,11 @@ export default function ConvertPage({
 
                       <img
                         src={result.url}
-                        alt="Converted"
+                        alt={`Converted ${outputName.toUpperCase()} image`}
                       />
 
                       <p>
-                        {formatBytes(
-                          result.file.size
-                        )}
+                        {formatBytes(result.file.size)}
                       </p>
                     </div>
                   </div>
@@ -213,6 +209,58 @@ export default function ConvertPage({
               )}
             </>
           )}
+        </section>
+
+        <section className="privacy-section">
+          <h2>Convert Images to WebP Online</h2>
+
+          <p>
+            WebP can be useful for websites because it can
+            provide smaller image files while maintaining
+            good visual quality. Convert your image directly
+            in the browser without uploading it to a server.
+          </p>
+        </section>
+
+        <section className="privacy-section">
+          <h2>Related Image Tools</h2>
+
+          <div className="tool-grid">
+            <Link to="/jpg-to-webp" className="tool-card">
+              <h3>JPG to WebP Converter</h3>
+              <p>
+                Convert JPG and JPEG images to WebP.
+              </p>
+            </Link>
+
+            <Link to="/png-to-webp" className="tool-card">
+              <h3>PNG to WebP Converter</h3>
+              <p>
+                Convert PNG images to WebP.
+              </p>
+            </Link>
+
+            <Link to="/webp-compressor" className="tool-card">
+              <h3>WebP Image Compressor</h3>
+              <p>
+                Reduce the size of WebP images.
+              </p>
+            </Link>
+
+            <Link to="/image-resizer" className="tool-card">
+              <h3>Image Resizer</h3>
+              <p>
+                Resize images to custom dimensions.
+              </p>
+            </Link>
+
+            <Link to="/compress-to-kb" className="tool-card">
+              <h3>Compress Image to Specific KB</h3>
+              <p>
+                Compress images to a target file size.
+              </p>
+            </Link>
+          </div>
         </section>
       </main>
     </>

@@ -5,37 +5,40 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-inner">
 
+        {/* Brand */}
         <div className="footer-brand">
           <Link to="/" className="footer-logo">
             Compressly
           </Link>
 
           <p>
-            Simple, fast and privacy-friendly image tools.
+            Free, fast and privacy-friendly online image compression,
+            conversion and resizing tools.
           </p>
         </div>
 
+        {/* Image Tools */}
         <div className="footer-column">
           <h4>Image Tools</h4>
 
           <Link to="/jpg-compressor">
-            JPG Compressor
+            JPG Image Compressor
           </Link>
 
           <Link to="/png-compressor">
-            PNG Compressor
+            PNG Image Compressor
           </Link>
 
           <Link to="/webp-compressor">
-            WebP Compressor
+            WebP Image Compressor
           </Link>
 
           <Link to="/jpg-to-webp">
-            JPG to WebP
+            JPG to WebP Converter
           </Link>
 
           <Link to="/png-to-webp">
-            PNG to WebP
+            PNG to WebP Converter
           </Link>
 
           <Link to="/image-resizer">
@@ -43,19 +46,20 @@ export default function Footer() {
           </Link>
 
           <Link to="/compress-to-kb">
-            Compress to Specific KB
+            Compress Image to Specific KB
           </Link>
         </div>
 
+        {/* Company */}
         <div className="footer-column">
           <h4>Company</h4>
 
           <Link to="/about">
-            About
+            About Compressly
           </Link>
 
           <Link to="/contact">
-            Contact
+            Contact Us
           </Link>
 
           <Link to="/privacy-policy">

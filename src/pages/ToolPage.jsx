@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import {
   MAX_FILE_SIZE,
@@ -27,9 +28,7 @@ export default function ToolPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const targetKB = customTarget
-    ? Number(customTarget)
-    : target;
+  const targetKB = customTarget ? Number(customTarget) : target;
 
   function selectFile(selected) {
     if (!selected) return;
@@ -59,14 +58,8 @@ export default function ToolPage({
       return;
     }
 
-    if (
-      !targetKB ||
-      targetKB < 10 ||
-      targetKB > 10240
-    ) {
-      setError(
-        "Target size must be between 10 KB and 10240 KB."
-      );
+    if (!targetKB || targetKB < 10 || targetKB > 10240) {
+      setError("Target size must be between 10 KB and 10240 KB.");
       return;
     }
 
@@ -92,9 +85,7 @@ export default function ToolPage({
         url: URL.createObjectURL(data.blob),
       });
     } catch (err) {
-      setError(
-        err.message || "Compression failed."
-      );
+      setError(err.message || "Compression failed.");
     } finally {
       setLoading(false);
     }
@@ -143,7 +134,7 @@ export default function ToolPage({
       <main className="container">
         <section className="hero">
           <span className="hero-badge">
-            IMAGE COMPRESSOR
+            FREE ONLINE IMAGE TOOL
           </span>
 
           <h1>{title}</h1>
@@ -155,19 +146,13 @@ export default function ToolPage({
           {!file ? (
             <div
               className="upload-area"
-              onClick={() =>
-                inputRef.current?.click()
-              }
+              onClick={() => inputRef.current?.click()}
             >
               <div className="upload-icon">↑</div>
 
-              <h3>
-                Upload {inputLabel} image
-              </h3>
+              <h3>Upload {inputLabel} image</h3>
 
-              <p>
-                Maximum file size: 20 MB
-              </p>
+              <p>Maximum file size: 20 MB</p>
 
               <button className="upload-button">
                 Choose Image
@@ -189,9 +174,7 @@ export default function ToolPage({
                 <div>
                   <strong>{file.name}</strong>
 
-                  <span>
-                    {formatBytes(file.size)}
-                  </span>
+                  <span>{formatBytes(file.size)}</span>
                 </div>
 
                 <button
@@ -206,36 +189,29 @@ export default function ToolPage({
                 <div className="settings-header">
                   <div>
                     <h3>Target file size</h3>
-                    <p>
-                      Try to compress below this size.
-                    </p>
+                    <p>Try to compress below this size.</p>
                   </div>
 
-                  <strong>
-                    {targetKB || 100} KB
-                  </strong>
+                  <strong>{targetKB || 100} KB</strong>
                 </div>
 
                 <div className="target-options">
-                  {[50, 100, 200, 500].map(
-                    (size) => (
-                      <button
-                        key={size}
-                        className={
-                          !customTarget &&
-                          target === size
-                            ? "target-option active"
-                            : "target-option"
-                        }
-                        onClick={() => {
-                          setTarget(size);
-                          setCustomTarget("");
-                        }}
-                      >
-                        {size} KB
-                      </button>
-                    )
-                  )}
+                  {[50, 100, 200, 500].map((size) => (
+                    <button
+                      key={size}
+                      className={
+                        !customTarget && target === size
+                          ? "target-option active"
+                          : "target-option"
+                      }
+                      onClick={() => {
+                        setTarget(size);
+                        setCustomTarget("");
+                      }}
+                    >
+                      {size} KB
+                    </button>
+                  ))}
 
                   <input
                     className="custom-target"
@@ -245,17 +221,13 @@ export default function ToolPage({
                     placeholder="Custom KB"
                     value={customTarget}
                     onChange={(e) =>
-                      setCustomTarget(
-                        e.target.value
-                      )
+                      setCustomTarget(e.target.value)
                     }
                   />
                 </div>
 
                 {note && (
-                  <p className="target-note">
-                    {note}
-                  </p>
+                  <p className="target-note">{note}</p>
                 )}
               </div>
 
@@ -283,12 +255,10 @@ export default function ToolPage({
 
                       <img
                         src={preview}
-                        alt="Original"
+                        alt={`Original ${inputLabel} image`}
                       />
 
-                      <p>
-                        {formatBytes(file.size)}
-                      </p>
+                      <p>{formatBytes(file.size)}</p>
                     </div>
 
                     <div className="preview-box">
@@ -296,16 +266,13 @@ export default function ToolPage({
 
                       <img
                         src={result.url}
-                        alt="Compressed"
+                        alt={`Compressed ${inputLabel} image`}
                       />
 
                       <p>
-                        {formatBytes(
-                          result.file.size
-                        )}
+                        {formatBytes(result.file.size)}
                         {" • "}
-                        {result.width} ×{" "}
-                        {result.height}
+                        {result.width} × {result.height}
                       </p>
                     </div>
                   </div>
@@ -313,24 +280,18 @@ export default function ToolPage({
                   <div className="compression-result">
                     <div>
                       <strong>
-                        {formatBytes(
-                          result.file.size
-                        )}
+                        {formatBytes(result.file.size)}
                       </strong>
                       <span>Final size</span>
                     </div>
 
                     <div>
-                      <strong>
-                        {saved.toFixed(0)}%
-                      </strong>
+                      <strong>{saved.toFixed(0)}%</strong>
                       <span>Space saved</span>
                     </div>
 
                     <div>
-                      <strong>
-                        {outputName.toUpperCase()}
-                      </strong>
+                      <strong>{outputName.toUpperCase()}</strong>
                       <span>Output format</span>
                     </div>
                   </div>
@@ -366,6 +327,82 @@ export default function ToolPage({
               )}
             </>
           )}
+        </section>
+
+        {/* SEO Content */}
+        <section className="privacy-section">
+          <h2>Compress Images Online with Compressly</h2>
+
+          <p>
+            Compressly is a free online image compression tool that
+            helps reduce image file size quickly. Choose your image,
+            select a target size and download the compressed result.
+          </p>
+
+          <p>
+            Image processing happens directly in your browser, so your
+            images do not need to be uploaded to a server.
+          </p>
+        </section>
+
+        {/* Related Tools */}
+        <section className="privacy-section">
+          <h2>More Image Tools</h2>
+
+          <p>
+            Looking for another image tool? Try one of these:
+          </p>
+
+          <div className="tool-grid">
+            <Link to="/jpg-compressor" className="tool-card">
+              <h3>JPG Image Compressor</h3>
+              <p>
+                Compress JPG and JPEG images online.
+              </p>
+            </Link>
+
+            <Link to="/png-compressor" className="tool-card">
+              <h3>PNG Image Compressor</h3>
+              <p>
+                Reduce PNG image file size online.
+              </p>
+            </Link>
+
+            <Link to="/webp-compressor" className="tool-card">
+              <h3>WebP Image Compressor</h3>
+              <p>
+                Compress WebP images while keeping good quality.
+              </p>
+            </Link>
+
+            <Link to="/jpg-to-webp" className="tool-card">
+              <h3>JPG to WebP Converter</h3>
+              <p>
+                Convert JPG images to WebP format.
+              </p>
+            </Link>
+
+            <Link to="/png-to-webp" className="tool-card">
+              <h3>PNG to WebP Converter</h3>
+              <p>
+                Convert PNG images to WebP.
+              </p>
+            </Link>
+
+            <Link to="/image-resizer" className="tool-card">
+              <h3>Image Resizer</h3>
+              <p>
+                Resize images to custom dimensions.
+              </p>
+            </Link>
+
+            <Link to="/compress-to-kb" className="tool-card">
+              <h3>Compress Image to Specific KB</h3>
+              <p>
+                Compress images to a target KB size.
+              </p>
+            </Link>
+          </div>
         </section>
       </main>
     </>
