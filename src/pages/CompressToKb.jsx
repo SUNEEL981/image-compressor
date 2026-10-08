@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import Header from "../components/Header";
 import MultiImageCompressor from "../components/MultiImageCompressor";
 
@@ -8,6 +9,39 @@ const TARGET_OPTIONS = [50, 100, 200, 500];
 export default function CompressToKb() {
   const [targetSize, setTargetSize] = useState(100);
   const [customSize, setCustomSize] = useState("");
+
+  useEffect(() => {
+    document.title =
+      "Compress Image to 50KB, 100KB, 200KB & 500KB Online | Compressly";
+
+    const description =
+      "Compress JPG, PNG and WebP images to 50KB, 100KB, 200KB or a custom size online for free with Compressly.";
+
+    let metaDescription = document.querySelector(
+      'meta[name="description"]'
+    );
+
+    if (!metaDescription) {
+      metaDescription = document.createElement("meta");
+      metaDescription.setAttribute("name", "description");
+      document.head.appendChild(metaDescription);
+    }
+
+    metaDescription.setAttribute("content", description);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+
+    canonical.setAttribute(
+      "href",
+      "https://image-compressor-drab-pi.vercel.app/compress-to-kb"
+    );
+  }, []);
 
   const selectedTarget = customSize
     ? Math.min(Math.max(Number(customSize) || 100, 10), 10240)
@@ -37,79 +71,75 @@ export default function CompressToKb() {
     <>
       <Header />
 
-      <main className="min-h-screen w-full bg-white px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-6xl">
+      <main className="min-h-screen bg-white text-gray-950">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
-          {/* ================= HERO ================= */}
-          <section className="mx-auto max-w-3xl pb-8 pt-12 text-center sm:pb-10 sm:pt-16 lg:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-600">
+          {/* HERO */}
+          <section className="mx-auto max-w-4xl pb-10 pt-12 text-center sm:pb-12 sm:pt-16 lg:pt-20">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-600">
               <span className="h-1.5 w-1.5 rounded-full bg-gray-900" />
-              Target Size Compressor
+              Image Size Compressor
             </div>
 
-            <h1 className="text-4xl font-extrabold leading-[1.05] tracking-[-1.8px] text-gray-950 sm:text-5xl lg:text-[58px]">
+            <h1 className="text-4xl font-extrabold leading-[1.05] tracking-[-2px] text-gray-950 sm:text-5xl lg:text-6xl">
               Compress Images
-              <br />
-              <span className="text-gray-500">to a Specific KB</span>
+              <span className="block text-gray-400">
+                to a Specific KB
+              </span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
-              Reduce JPG, PNG and WebP images to your desired file size.
-              Choose a preset target or enter a custom size.
+            <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
+              Compress JPG, PNG and WebP images to 50KB, 100KB, 200KB,
+              500KB or any custom size. Fast, simple and free.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-gray-400 sm:text-xs">
-              <span className="rounded-full border border-gray-200 px-3 py-1.5">
-                JPG
-              </span>
-              <span className="rounded-full border border-gray-200 px-3 py-1.5">
-                PNG
-              </span>
-              <span className="rounded-full border border-gray-200 px-3 py-1.5">
-                WebP
-              </span>
-              <span className="rounded-full border border-gray-200 px-3 py-1.5">
-                Multiple Images
-              </span>
+            <div className="mt-7 flex flex-wrap justify-center gap-2">
+              {["JPG", "PNG", "WebP", "Multiple Images"].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[11px] font-semibold text-gray-500"
+                >
+                  {item}
+                </span>
+              ))}
             </div>
           </section>
 
-          {/* ================= MAIN TOOL ================= */}
-          <section className="mx-auto mb-14 w-full max-w-4xl rounded-[26px] border border-gray-200 bg-white p-2 shadow-[0_20px_60px_rgba(15,23,42,0.06)] sm:p-4 lg:p-5">
+          {/* MAIN TOOL */}
+          <section className="mx-auto mb-14 w-full max-w-4xl rounded-[28px] border border-gray-200 bg-white p-2 shadow-[0_20px_70px_rgba(15,23,42,0.07)] sm:p-4 lg:p-5">
 
-            {/* Target Size Panel */}
-            <div className="rounded-[20px] border border-gray-200 bg-gray-50/70 p-5 sm:p-6 lg:p-7">
+            <div className="rounded-[22px] border border-gray-200 bg-gray-50/70 p-5 sm:p-7 lg:p-8">
 
-              {/* Header */}
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              {/* TOOL HEADER */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-xs font-bold text-white">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-950 text-xs font-bold text-white">
                       1
                     </span>
 
-                    <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-400">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-gray-400">
                       Compression Target
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold tracking-[-0.5px] text-gray-950 sm:text-2xl">
+                  <h2 className="text-2xl font-bold tracking-[-0.7px] text-gray-950">
                     Choose target size
                   </h2>
 
-                  <p className="mt-1 text-xs leading-6 text-gray-500 sm:text-sm">
-                    Set the maximum size for your compressed image.
+                  <p className="mt-1.5 text-sm leading-6 text-gray-500">
+                    Set the maximum file size for your compressed image.
                   </p>
                 </div>
 
-                <div className="hidden rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-gray-500 sm:block">
+                <div className="w-fit rounded-full border border-gray-200 bg-white px-3.5 py-2 text-[11px] font-semibold text-gray-500">
                   10 KB – 10 MB
                 </div>
               </div>
 
-              {/* Presets */}
-              <div className="mt-6">
-                <p className="mb-2.5 text-xs font-semibold text-gray-500">
+              {/* PRESET SIZES */}
+              <div className="mt-7">
+                <p className="mb-3 text-xs font-bold text-gray-500">
                   Popular sizes
                 </p>
 
@@ -123,47 +153,36 @@ export default function CompressToKb() {
                         key={size}
                         type="button"
                         onClick={() => handlePreset(size)}
-                        className={`
-                          group relative h-12 rounded-xl border
-                          px-4 text-sm font-bold
-                          transition-all duration-200
-                          active:scale-[0.98]
-                          ${
-                            isActive
-                              ? "border-gray-950 bg-gray-950 text-white shadow-[0_8px_20px_rgba(17,24,39,0.16)]"
-                              : "border-gray-200 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-gray-400 hover:shadow-sm"
-                          }
-                        `}
+                        className={`h-12 rounded-xl border px-4 text-sm font-bold transition-all duration-200 active:scale-[0.98] ${
+                          isActive
+                            ? "border-gray-950 bg-gray-950 text-white shadow-lg shadow-gray-900/10"
+                            : "border-gray-200 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-gray-400 hover:shadow-sm"
+                        }`}
                       >
                         {size} KB
-
-                        {isActive && (
-                          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-white" />
-                        )}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Custom Size */}
-              <div className="mt-6 border-t border-gray-200 pt-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
+              {/* CUSTOM SIZE */}
+              <div className="mt-7 border-t border-gray-200 pt-7">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <label
                       htmlFor="custom-target"
-                      className="text-sm font-semibold text-gray-800"
+                      className="text-sm font-bold text-gray-800"
                     >
                       Custom target size
                     </label>
 
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs leading-5 text-gray-400">
                       Enter any value between 10 KB and 10 MB.
                     </p>
                   </div>
 
-                  <div className="flex h-12 w-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all focus-within:border-gray-900 focus-within:ring-4 focus-within:ring-gray-900/5 sm:w-[220px]">
+                  <div className="flex h-12 w-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all focus-within:border-gray-900 focus-within:ring-4 focus-within:ring-gray-900/5 sm:w-[230px]">
                     <input
                       id="custom-target"
                       type="number"
@@ -173,7 +192,7 @@ export default function CompressToKb() {
                       value={customSize}
                       onChange={handleCustom}
                       aria-label="Custom target size in KB"
-                      className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                      className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm font-semibold text-gray-900 outline-none placeholder:text-gray-400"
                     />
 
                     <span className="flex items-center border-l border-gray-100 px-4 text-xs font-bold text-gray-400">
@@ -183,12 +202,12 @@ export default function CompressToKb() {
                 </div>
               </div>
 
-              {/* Current Target */}
-              <div className="mt-5 flex flex-col items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:flex-row">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-gray-900" />
+              {/* CURRENT TARGET */}
+              <div className="mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-2 w-2 rounded-full bg-gray-950" />
 
-                  <span className="text-xs font-medium text-gray-500">
+                  <span className="text-xs font-semibold text-gray-500">
                     Current target
                   </span>
                 </div>
@@ -199,22 +218,24 @@ export default function CompressToKb() {
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="my-5 flex items-center gap-3 px-2 sm:px-4">
+            {/* STEP 2 */}
+            <div className="my-6 flex items-center gap-3 px-2 sm:px-4">
               <div className="h-px flex-1 bg-gray-100" />
 
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-[10px] font-bold text-gray-400">
-                2
-              </div>
+              <div className="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-3">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-950 text-[9px] font-bold text-white">
+                  2
+                </span>
 
-              <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-400">
-                Upload
-              </span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-gray-400">
+                  Upload
+                </span>
+              </div>
 
               <div className="h-px flex-1 bg-gray-100" />
             </div>
 
-            {/* Existing Compressor */}
+            {/* COMPRESSOR */}
             <MultiImageCompressor
               accepted="image/jpeg,image/png,image/webp"
               targetSize={selectedTarget}
@@ -223,147 +244,244 @@ export default function CompressToKb() {
             />
           </section>
 
-          {/* ================= INFO ================= */}
-          <section className="mx-auto mb-10 w-full max-w-4xl rounded-2xl border border-gray-200 bg-gray-50/60 p-5 sm:p-7">
+          {/* SEO INFORMATION */}
+          <section className="mx-auto mb-12 w-full max-w-4xl rounded-[24px] border border-gray-200 bg-gray-50/60 p-6 sm:p-8">
+            <div className="mb-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                Compress images to KB
+              </p>
 
-            <div className="mb-5 flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-sm font-bold text-gray-900 shadow-sm">
-                ✓
-              </div>
-
-              <div>
-                <h2 className="text-lg font-bold tracking-[-0.3px] text-gray-950 sm:text-xl">
-                  Compress Images to 50KB, 100KB, 200KB or 500KB
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Quickly prepare images for websites, forms and online
-                  applications.
-                </p>
-              </div>
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.7px] text-gray-950 sm:text-3xl">
+                Compress Image to 50KB, 100KB, 200KB or 500KB
+              </h2>
             </div>
 
-            <div className="space-y-3 text-sm leading-7 text-gray-500">
+            <div className="space-y-5 text-sm leading-7 text-gray-500">
               <p>
-                Use Compressly when you need an image below a specific
-                file-size limit. Choose a preset target or enter a custom
-                size between 10 KB and 10 MB.
+                Need to reduce an image below a specific file-size limit?
+                Compressly lets you compress JPG, PNG and WebP images to a
+                selected target size. Choose 50KB, 100KB, 200KB or 500KB,
+                or enter your own custom size.
               </p>
 
               <p>
-                You can process multiple JPG, PNG and WebP images in one
-                session and download the compressed results.
+                This tool is useful when an online application, website,
+                form or document requires an image below a particular
+                file-size limit. You can also process multiple images in
+                one session.
               </p>
+
+              <p>
+                Select your target size, upload your image and let
+                Compressly reduce the file size while attempting to
+                preserve useful image quality.
+              </p>
+            </div>
+
+            {/* SIZE OPTIONS */}
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  title: "Compress Image to 50KB",
+                  text: "Useful when an application or form requires a very small image file.",
+                },
+                {
+                  title: "Compress Image to 100KB",
+                  text: "Reduce image size for websites, forms and online applications.",
+                },
+                {
+                  title: "Compress Image to 200KB",
+                  text: "A practical target for many online uploads and documents.",
+                },
+                {
+                  title: "Compress Image to 500KB",
+                  text: "Reduce larger images while keeping a useful level of quality.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-gray-200 bg-white p-5"
+                >
+                  <h3 className="text-sm font-bold text-gray-950">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-2 text-xs leading-6 text-gray-500">
+                    {item.text}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* ================= RELATED TOOLS ================= */}
-          <section className="mx-auto mb-16 w-full max-w-4xl">
-
-            <div className="mb-5">
-              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-gray-400">
-                More tools
+          {/* HOW TO USE */}
+          <section className="mx-auto mb-12 w-full max-w-4xl">
+            <div className="mb-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                Simple process
               </p>
 
-              <h2 className="mt-1 text-xl font-bold tracking-[-0.5px] text-gray-950 sm:text-2xl">
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.6px] text-gray-950 sm:text-3xl">
+                How to compress an image to a specific size
+              </h2>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  number: "01",
+                  title: "Choose a size",
+                  text: "Select 50KB, 100KB, 200KB, 500KB or enter a custom target.",
+                },
+                {
+                  number: "02",
+                  title: "Upload images",
+                  text: "Upload JPG, PNG or WebP images using the compressor above.",
+                },
+                {
+                  number: "03",
+                  title: "Download",
+                  text: "Download your compressed images after processing is complete.",
+                },
+              ].map((step) => (
+                <div
+                  key={step.number}
+                  className="rounded-2xl border border-gray-200 bg-white p-5"
+                >
+                  <span className="text-[11px] font-extrabold tracking-wider text-gray-400">
+                    {step.number}
+                  </span>
+
+                  <h3 className="mt-4 text-base font-bold text-gray-950">
+                    {step.title}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-gray-500">
+                    {step.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* FAQ */}
+          <section className="mx-auto mb-14 w-full max-w-4xl">
+            <div className="mb-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                FAQ
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.6px] text-gray-950 sm:text-3xl">
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            <div className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
+              {[
+                {
+                  q: "Can I compress an image to exactly 50KB?",
+                  a: "The compressor uses the selected target as the maximum desired file size. The final size can vary depending on the original image and its contents.",
+                },
+                {
+                  q: "Which image formats are supported?",
+                  a: "You can upload JPG, PNG and WebP images using this tool.",
+                },
+                {
+                  q: "Can I compress multiple images?",
+                  a: "Yes. The page supports multiple image processing in one session.",
+                },
+                {
+                  q: "Can I enter my own target size?",
+                  a: "Yes. You can enter a custom target between 10KB and 10MB.",
+                },
+                {
+                  q: "What can I use a 50KB image for?",
+                  a: "A 50KB target can be useful for online forms, applications and websites that have strict image-size limits.",
+                },
+              ].map((item) => (
+                <details
+                  key={item.q}
+                  className="group px-5 py-5 sm:px-6"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold text-gray-900">
+                    {item.q}
+
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-500">
+                    {item.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          {/* RELATED TOOLS */}
+          <section className="mx-auto mb-20 w-full max-w-4xl">
+            <div className="mb-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                Explore more
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.6px] text-gray-950 sm:text-3xl">
                 Other Image Tools
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  path: "/jpg-compressor",
+                  label: "JPG",
+                  title: "JPG Image Compressor",
+                  description: "Compress JPG and JPEG images online.",
+                },
+                {
+                  path: "/png-compressor",
+                  label: "PNG",
+                  title: "PNG Image Compressor",
+                  description: "Reduce PNG image file size while keeping quality.",
+                },
+                {
+                  path: "/webp-compressor",
+                  label: "WEBP",
+                  title: "WebP Image Compressor",
+                  description: "Compress WebP images for faster websites.",
+                },
+                {
+                  path: "/image-resizer",
+                  label: "RESIZE",
+                  title: "Image Resizer",
+                  description: "Resize images to custom dimensions quickly.",
+                },
+              ].map((tool) => (
+                <Link
+                  key={tool.path}
+                  to={tool.path}
+                  className="group rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)]"
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-[10px] font-extrabold text-gray-700">
+                      {tool.label}
+                    </span>
 
-              <Link
-                to="/jpg-compressor"
-                className="group rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-xs font-extrabold text-gray-700">
-                    JPG
+                    <span className="text-lg text-gray-300 transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
                   </div>
 
-                  <span className="text-lg text-gray-300 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
+                  <h3 className="mt-5 text-base font-bold text-gray-950">
+                    {tool.title}
+                  </h3>
 
-                <h3 className="mt-5 text-base font-bold text-gray-950">
-                  JPG Image Compressor
-                </h3>
-
-                <p className="mt-1.5 text-sm leading-6 text-gray-500">
-                  Compress JPG and JPEG images online.
-                </p>
-              </Link>
-
-              <Link
-                to="/png-compressor"
-                className="group rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-xs font-extrabold text-gray-700">
-                    PNG
-                  </div>
-
-                  <span className="text-lg text-gray-300 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
-
-                <h3 className="mt-5 text-base font-bold text-gray-950">
-                  PNG Image Compressor
-                </h3>
-
-                <p className="mt-1.5 text-sm leading-6 text-gray-500">
-                  Reduce PNG image file size while keeping quality.
-                </p>
-              </Link>
-
-              <Link
-                to="/webp-compressor"
-                className="group rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-xs font-extrabold text-gray-700">
-                    WEBP
-                  </div>
-
-                  <span className="text-lg text-gray-300 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
-
-                <h3 className="mt-5 text-base font-bold text-gray-950">
-                  WebP Image Compressor
-                </h3>
-
-                <p className="mt-1.5 text-sm leading-6 text-gray-500">
-                  Compress WebP images for faster websites.
-                </p>
-              </Link>
-
-              <Link
-                to="/image-resizer"
-                className="group rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-xs font-extrabold text-gray-700">
-                    RESIZE
-                  </div>
-
-                  <span className="text-lg text-gray-300 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
-
-                <h3 className="mt-5 text-base font-bold text-gray-950">
-                  Image Resizer
-                </h3>
-
-                <p className="mt-1.5 text-sm leading-6 text-gray-500">
-                  Resize images to custom dimensions quickly.
-                </p>
-              </Link>
-
+                  <p className="mt-1.5 text-sm leading-6 text-gray-500">
+                    {tool.description}
+                  </p>
+                </Link>
+              ))}
             </div>
           </section>
         </div>

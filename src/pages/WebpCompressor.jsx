@@ -9,6 +9,9 @@ export default function WebpCompressor() {
       inputLabel="WebP"
       outputType="image/webp"
       outputName="webp"
+      seoTitle="WebP Compressor Online – Compress WebP Images | Compressly"
+      seoDescription="Compress WebP images online for free. Reduce WebP image file size while maintaining good quality with Compressly."
+      canonicalPath="/webp-compressor"
     />
   );
 }
