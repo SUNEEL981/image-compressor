@@ -1,8 +1,7 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-
 import Header from "../components/Header";
-
 import {
   MAX_FILE_SIZE,
   formatBytes,
@@ -10,6 +9,18 @@ import {
   compressToTarget,
   createOutputFile,
 } from "../utils/imageTools";
+
+const PRESETS = [50, 100, 200, 500];
+
+const RELATED_TOOLS = [
+  { to: "/jpg-compressor", label: "JPG", title: "JPG Compressor", description: "Compress JPG images online." },
+  { to: "/png-compressor", label: "PNG", title: "PNG Compressor", description: "Reduce PNG image file size." },
+  { to: "/webp-compressor", label: "WEBP", title: "WebP Compressor", description: "Compress WebP images online." },
+  { to: "/jpg-to-webp", label: "JPG →", title: "JPG to WebP", description: "Convert JPG images into WebP." },
+  { to: "/png-to-webp", label: "PNG →", title: "PNG to WebP", description: "Convert PNG images into WebP." },
+  { to: "/image-resizer", label: "SIZE", title: "Image Resizer", description: "Resize images to custom dimensions." },
+  { to: "/compress-to-kb", label: "KB", title: "Compress Image to KB", description: "Compress images to a target size." },
+];
 
 export default function ToolPage({
   title,
@@ -24,149 +35,136 @@ export default function ToolPage({
   canonicalPath,
 }) {
   const inputRef = useRef(null);
+  const previewRef = useRef("");
+  const resultUrlRef = useRef("");
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [result, setResult] = useState(null);
-
   const [target, setTarget] = useState(100);
   const [customTarget, setCustomTarget] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [dragging, setDragging] = useState(false);
 
-  const targetKB = customTarget
-    ? Number(customTarget)
-    : target;
-
-  /* =====================================================
-     SEO
-  ===================================================== */
+  const targetKB = customTarget !== "" ? Number(customTarget) : target;
 
   useEffect(() => {
-    const finalTitle =
-      seoTitle ||
-      `${title} Online – Compress ${inputLabel} Images | Pixnora`;
+    const previousTitle = document.title;
+    document.title = seoTitle || `${title} Online | Pixnora`;
 
-    const finalDescription =
-      seoDescription ||
-      description;
+    let meta = document.querySelector('meta[name="description"]');
+    const createdMeta = !meta;
 
-    document.title = finalTitle;
-
-    let metaDescription = document.querySelector(
-      'meta[name="description"]'
-    );
-
-    if (!metaDescription) {
-      metaDescription = document.createElement("meta");
-      metaDescription.setAttribute("name", "description");
-      document.head.appendChild(metaDescription);
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "description";
+      document.head.appendChild(meta);
     }
 
-    metaDescription.setAttribute(
-      "content",
-      finalDescription
-    );
+    const previousDescription = meta.getAttribute("content");
+    meta.setAttribute("content", seoDescription || description);
 
-    let canonical = document.querySelector(
-      'link[rel="canonical"]'
-    );
+    let canonical = document.querySelector('link[rel="canonical"]');
+    const createdCanonical = !canonical;
 
     if (!canonical) {
       canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
+      canonical.rel = "canonical";
       document.head.appendChild(canonical);
     }
 
-    const canonicalUrl =
-      canonicalPath
-        ? `https://pixnora.devs.surf${canonicalPath}`
-        : window.location.href.split("#")[0].split("?")[0];
+    const previousCanonical = canonical.getAttribute("href");
 
-    canonical.setAttribute(
-      "href",
-      canonicalUrl
-    );
+    canonical.href = canonicalPath
+      ? `https://pixnora.devs.surf${canonicalPath}`
+      : window.location.href.split("#")[0].split("?")[0];
 
     return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
+      document.title = previousTitle;
+
+      if (createdMeta) {
+        meta.remove();
+      } else if (previousDescription !== null) {
+        meta.setAttribute("content", previousDescription);
       }
 
-      if (result?.url) {
-        URL.revokeObjectURL(result.url);
+      if (createdCanonical) {
+        canonical.remove();
+      } else if (previousCanonical !== null) {
+        canonical.setAttribute("href", previousCanonical);
       }
     };
-  }, [
-    title,
-    description,
-    inputLabel,
-    seoTitle,
-    seoDescription,
-    canonicalPath,
-  ]);
+  }, [title, description, seoTitle, seoDescription, canonicalPath]);
 
-  /* =====================================================
-     FILE SELECT
-  ===================================================== */
+  useEffect(() => {
+    return () => {
+      if (previewRef.current) {
+        URL.revokeObjectURL(previewRef.current);
+      }
+
+      if (resultUrlRef.current) {
+        URL.revokeObjectURL(resultUrlRef.current);
+      }
+    };
+  }, []);
+
+  function clearResult() {
+    if (resultUrlRef.current) {
+      URL.revokeObjectURL(resultUrlRef.current);
+      resultUrlRef.current = "";
+    }
+
+    setResult(null);
+  }
 
   function selectFile(selected) {
     if (!selected) return;
 
     setError("");
-    setResult(null);
+
+    if (!selected.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
 
     if (selected.size > MAX_FILE_SIZE) {
       setError("Maximum file size is 20 MB.");
       return;
     }
 
-    if (!selected.type.startsWith("image/")) {
-      setError("Please select a valid image.");
-      return;
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
     }
 
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
+    clearResult();
 
     const url = URL.createObjectURL(selected);
+    previewRef.current = url;
 
     setFile(selected);
     setPreview(url);
   }
 
-  /* =====================================================
-     COMPRESS
-  ===================================================== */
-
   async function compress() {
     if (!file) {
-      setError(
-        `Please select a ${inputLabel} image.`
-      );
+      setError(`Please select a ${inputLabel} image.`);
       return;
     }
 
     if (
-      !targetKB ||
+      !Number.isFinite(targetKB) ||
       targetKB < 10 ||
       targetKB > 10240
     ) {
-      setError(
-        "Target size must be between 10 KB and 10240 KB."
-      );
+      setError("Target size must be between 10 KB and 10240 KB.");
       return;
     }
 
     try {
       setLoading(true);
       setError("");
-
-      if (result?.url) {
-        URL.revokeObjectURL(result.url);
-      }
+      clearResult();
 
       const data = await compressToTarget(
         file,
@@ -180,290 +178,222 @@ export default function ToolPage({
         outputType
       );
 
-      const resultUrl =
-        URL.createObjectURL(data.blob);
+      const url = URL.createObjectURL(data.blob);
+      resultUrlRef.current = url;
 
       setResult({
         ...data,
         file: outputFile,
-        url: resultUrl,
+        url,
       });
     } catch (err) {
-      setError(
-        err?.message ||
-          "Compression failed. Please try again."
-      );
+      setError(err?.message || "Compression failed. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  /* =====================================================
-     DOWNLOAD
-  ===================================================== */
-
   function download() {
     if (!result?.file) return;
 
-    const url = URL.createObjectURL(
-      result.file
-    );
+    const url = URL.createObjectURL(result.file);
+    const anchor = document.createElement("a");
 
-    const a = document.createElement("a");
+    anchor.href = url;
+    anchor.download = result.file.name;
 
-    a.href = url;
-    a.download = result.file.name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
 
-    document.body.appendChild(a);
-
-    a.click();
-
-    a.remove();
-
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  /* =====================================================
-     RESET
-  ===================================================== */
-
   function reset() {
-    if (preview) {
-      URL.revokeObjectURL(preview);
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+      previewRef.current = "";
     }
 
-    if (result?.url) {
-      URL.revokeObjectURL(result.url);
-    }
+    clearResult();
 
     setFile(null);
     setPreview("");
-    setResult(null);
     setError("");
-    setCustomTarget("");
     setTarget(100);
+    setCustomTarget("");
+    setDragging(false);
 
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   }
 
-  const saved = result
-    ? reductionPercent(
-        file.size,
-        result.file.size
-      )
-    : 0;
+  const saved =
+    result && file
+      ? reductionPercent(file.size, result.file.size)
+      : 0;
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen w-full overflow-x-hidden bg-white">
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <main className="relative min-h-screen w-full overflow-x-clip bg-[#faf9ff] text-gray-900">
+        {/* HERO */}
+        <section className="relative w-full overflow-hidden border-b border-violet-100 bg-gradient-to-br from-violet-50 via-white to-blue-50">
+          <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-violet-200/40 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-blue-200/40 blur-3xl" />
 
-          {/* =================================================
-              HERO
-          ================================================= */}
+          <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 py-14 text-center sm:px-6 sm:py-16 lg:px-10 lg:py-20">
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-xs font-bold text-violet-700 shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-gradient-to-r from-violet-600 to-blue-600" />
+              FREE ONLINE IMAGE TOOL
+            </span>
 
-          <section className="mx-auto max-w-4xl pb-10 pt-10 text-center sm:pb-14 sm:pt-14 lg:pb-16 lg:pt-18">
-
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] !text-gray-500 sm:text-[11px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-900" />
-
-              <span className="!text-gray-500">
-                Free Online Image Tool
-              </span>
-            </div>
-
-            <h1 className="mx-auto max-w-4xl text-3xl font-extrabold leading-[1.05] tracking-[-1.5px] !text-gray-950 sm:text-5xl lg:text-6xl">
+            <h1 className="mx-auto mt-6 w-full max-w-5xl break-words bg-gradient-to-r from-violet-700 via-purple-600 to-blue-600 bg-clip-text text-3xl font-extrabold leading-tight tracking-tight text-transparent sm:text-5xl lg:text-6xl">
               {title}
             </h1>
 
-            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 !text-gray-500 sm:text-base sm:leading-8">
+            <p className="mx-auto mt-5 w-full max-w-3xl text-sm leading-7 text-gray-600 sm:text-base sm:leading-8">
               {description}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-
-              <span className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[10px] font-semibold !text-gray-500 sm:text-[11px]">
-                {inputLabel}
-              </span>
-
-              <span className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[10px] font-semibold !text-gray-500 sm:text-[11px]">
-                Up to 20 MB
-              </span>
-
-              <span className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[10px] font-semibold !text-gray-500 sm:text-[11px]">
-                Browser Based
-              </span>
-
-              <span className="rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[10px] font-semibold !text-gray-500 sm:text-[11px]">
-                Free
-              </span>
-
-            </div>
-          </section>
-
-          {/* =================================================
-              MAIN TOOL
-          ================================================= */}
-
-          <section className="mx-auto mb-12 w-full max-w-4xl rounded-[24px] border border-gray-200 bg-white p-2 shadow-[0_20px_60px_rgba(15,23,42,0.06)] sm:p-4 lg:p-5">
-
-            {!file ? (
-
-              /* =================================================
-                 UPLOAD
-              ================================================= */
-
-              <div
-                className="group flex min-h-[350px] cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 bg-gray-50/50 px-5 py-10 text-center transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 sm:min-h-[390px]"
-                onClick={() =>
-                  inputRef.current?.click()
-                }
-              >
-
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-2xl !text-gray-700 shadow-sm transition-transform duration-200 group-hover:-translate-y-1 sm:h-16 sm:w-16">
-                  ↑
-                </div>
-
-                <h2 className="mt-5 text-xl font-bold tracking-[-0.4px] !text-gray-950 sm:mt-6">
-                  Upload {inputLabel} image
-                </h2>
-
-                <p className="mt-2 max-w-sm text-sm leading-6 !text-gray-500">
-                  Choose an image and compress it to
-                  your preferred target file size.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    inputRef.current?.click();
-                  }}
-                  className="mt-6 rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold !text-white shadow-[0_8px_20px_rgba(17,24,39,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 active:scale-[0.98]"
+            <div className="mt-6 flex w-full flex-wrap justify-center gap-2">
+              {[inputLabel, "Up to 20 MB", "Browser Based", "Free to Use"].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-violet-100 bg-white px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm"
                 >
-                  <span className="!text-white">
-                    Choose Image
-                  </span>
-                </button>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <p className="mt-4 text-[11px] !text-gray-400">
-                  Maximum file size: 20 MB
-                </p>
-
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept={accepted}
-                  hidden
-                  onChange={(e) =>
-                    selectFile(
-                      e.target.files?.[0]
-                    )
-                  }
-                />
-
-              </div>
-
-            ) : (
-
-              <>
-                {/* =================================================
-                    SELECTED FILE
-                ================================================= */}
-
-                <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-gray-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
-
-                  <div className="flex min-w-0 items-center gap-3">
-
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[10px] font-extrabold !text-gray-700 shadow-sm">
-                      {inputLabel
-                        .slice(0, 3)
-                        .toUpperCase()}
-                    </div>
-
-                    <div className="min-w-0">
-
-                      <p className="truncate text-sm font-semibold !text-gray-900">
-                        {file.name}
-                      </p>
-
-                      <p className="mt-0.5 text-xs !text-gray-400">
-                        {formatBytes(file.size)}
-                      </p>
-
-                    </div>
+        {/* CENTERED PAGE CONTAINER */}
+        <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
+          {/* COMPRESSION TOOL */}
+          <section className="mx-auto mb-14 mt-10 w-full max-w-5xl sm:mt-12">
+            <div className="rounded-3xl border border-violet-100 bg-white p-3 shadow-[0_20px_70px_rgba(91,33,182,0.09)] sm:p-5 lg:p-7">
+              {!file ? (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragging(false);
+                    selectFile(e.dataTransfer.files?.[0]);
+                  }}
+                  onClick={() => inputRef.current?.click()}
+                  className={`group flex min-h-[330px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-10 text-center transition sm:min-h-[400px] ${
+                    dragging
+                      ? "border-violet-500 bg-violet-50"
+                      : "border-violet-200 bg-gradient-to-br from-violet-50/70 via-white to-blue-50/70 hover:border-violet-400"
+                  }`}
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 text-3xl text-white shadow-lg shadow-violet-200 transition group-hover:-translate-y-1">
+                    ↑
                   </div>
+
+                  <h2 className="mt-6 text-xl font-extrabold text-gray-900 sm:text-2xl">
+                    Upload {inputLabel} Image
+                  </h2>
+
+                  <p className="mt-3 max-w-md text-sm leading-6 text-gray-500">
+                    Drag and drop your image here, or choose a file from your device.
+                  </p>
 
                   <button
                     type="button"
-                    onClick={reset}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold !text-gray-600 transition hover:border-gray-300 hover:!text-gray-900 sm:w-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      inputRef.current?.click();
+                    }}
+                    className="mt-6 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:shadow-xl"
                   >
-                    Remove
+                    Choose Image
                   </button>
 
+                  <p className="mt-4 text-xs text-gray-400">
+                    Maximum file size: 20 MB
+                  </p>
+
+                  <input
+                    ref={inputRef}
+                    type="file"
+                    accept={accepted}
+                    hidden
+                    onChange={(e) => {
+                      selectFile(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                  />
                 </div>
+              ) : (
+                <>
+                  {/* SELECTED FILE */}
+                  <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-violet-100 bg-violet-50/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 text-xs font-extrabold text-white">
+                        IMG
+                      </div>
 
-                {/* =================================================
-                    SETTINGS
-                ================================================= */}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-gray-900">
+                          {file.name}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {formatBytes(file.size)}
+                        </p>
+                      </div>
+                    </div>
 
-                <div className="rounded-[20px] border border-gray-200 bg-gray-50/70 p-5 sm:p-6 lg:p-7">
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="rounded-xl border border-violet-100 bg-white px-4 py-2.5 text-xs font-bold text-gray-600 hover:border-violet-300 hover:text-violet-700"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
 
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-
-                    <div>
-
-                      <div className="mb-2 flex items-center gap-2">
-
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-950 text-xs font-bold !text-white">
-                          1
-                        </span>
-
-                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] !text-gray-400 sm:text-[11px]">
+                  {/* SETTINGS */}
+                  <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50/80 via-white to-blue-50/70 p-4 sm:p-6 lg:p-8">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <span className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet-700">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-blue-600 text-white">
+                            1
+                          </span>
                           Compression Settings
                         </span>
 
+                        <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl">
+                          Choose target file size
+                        </h2>
+
+                        <p className="mt-2 text-sm leading-6 text-gray-500">
+                          Select your preferred maximum image size.
+                        </p>
                       </div>
 
-                      <h2 className="text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">
-                        Choose target file size
-                      </h2>
+                      <span className="w-fit rounded-full border border-violet-100 bg-white px-3 py-2 text-xs font-bold text-violet-700">
+                        10 KB – 10 MB
+                      </span>
+                    </div>
 
-                      <p className="mt-1 text-xs leading-6 !text-gray-500 sm:text-sm">
-                        Select the maximum size for your
-                        compressed image.
+                    <div className="mt-6">
+                      <p className="mb-3 text-sm font-bold text-gray-700">
+                        Popular sizes
                       </p>
 
-                    </div>
-
-                    <div className="w-fit rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-semibold !text-gray-500 sm:text-[11px]">
-                      10 KB – 10 MB
-                    </div>
-
-                  </div>
-
-                  {/* =================================================
-                      PRESETS
-                  ================================================= */}
-
-                  <div className="mt-6">
-
-                    <p className="mb-2.5 text-xs font-semibold !text-gray-500">
-                      Popular sizes
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-
-                      {[50, 100, 200, 500].map(
-                        (size) => {
-                          const active =
-                            !customTarget &&
-                            target === size;
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        {PRESETS.map((size) => {
+                          const active = !customTarget && target === size;
 
                           return (
                             <button
@@ -473,654 +403,341 @@ export default function ToolPage({
                                 setTarget(size);
                                 setCustomTarget("");
                               }}
-                              className={`relative h-12 rounded-xl border px-4 text-sm font-bold transition-all duration-200 active:scale-[0.98] ${
+                              className={`rounded-xl border px-3 py-3.5 text-sm font-extrabold transition ${
                                 active
-                                  ? "border-gray-950 bg-gray-950 !text-white shadow-[0_8px_20px_rgba(17,24,39,0.16)]"
-                                  : "border-gray-200 bg-white !text-gray-700 hover:-translate-y-0.5 hover:border-gray-400 hover:shadow-sm"
+                                  ? "border-transparent bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md shadow-violet-200"
+                                  : "border-violet-100 bg-white text-gray-700 hover:border-violet-300 hover:bg-violet-50"
                               }`}
                             >
-                              <span
-                                className={
-                                  active
-                                    ? "!text-white"
-                                    : "!text-gray-700"
-                                }
-                              >
-                                {size} KB
-                              </span>
-
-                              {active && (
-                                <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-white" />
-                              )}
+                              {size} KB
                             </button>
                           );
-                        }
-                      )}
-
-                    </div>
-                  </div>
-
-                  {/* =================================================
-                      CUSTOM TARGET
-                  ================================================= */}
-
-                  <div className="mt-6 border-t border-gray-200 pt-6">
-
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                      <div>
-
-                        <label
-                          htmlFor="custom-target"
-                          className="text-sm font-semibold !text-gray-800"
-                        >
-                          Custom target size
-                        </label>
-
-                        <p className="mt-1 text-xs !text-gray-400">
-                          Enter a value from 10 KB to
-                          10 MB.
-                        </p>
-
+                        })}
                       </div>
+                    </div>
 
-                      <div className="flex h-12 w-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all focus-within:border-gray-900 focus-within:ring-4 focus-within:ring-gray-900/5 sm:w-[220px]">
+                    <div className="mt-6 border-t border-violet-100 pt-6">
+                      <label htmlFor="custom-target" className="text-sm font-bold text-gray-800">
+                        Custom target size
+                      </label>
 
+                      <p className="mt-1 text-xs leading-5 text-gray-500">
+                        Enter a value between 10 KB and 10240 KB.
+                      </p>
+
+                      <div className="mt-3 flex h-12 overflow-hidden rounded-xl border border-violet-100 bg-white focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-100">
                         <input
                           id="custom-target"
                           type="number"
                           min="10"
                           max="10240"
-                          placeholder="Enter size"
+                          step="1"
+                          placeholder="Enter target size"
                           value={customTarget}
-                          onChange={(e) =>
-                            setCustomTarget(
-                              e.target.value
-                            )
-                          }
-                          className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm font-semibold !text-gray-900 outline-none placeholder:!text-gray-400"
+                          onChange={(e) => setCustomTarget(e.target.value)}
+                          className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm font-semibold text-gray-900 outline-none placeholder:text-gray-400"
                         />
 
-                        <span className="flex items-center border-l border-gray-100 px-4 text-xs font-bold !text-gray-400">
+                        <span className="flex items-center border-l border-violet-100 px-4 text-xs font-bold text-violet-600">
                           KB
                         </span>
-
                       </div>
-
                     </div>
 
-                  </div>
-
-                  {/* =================================================
-                      CURRENT TARGET
-                  ================================================= */}
-
-                  <div className="mt-5 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
-
-                    <div className="flex items-center gap-2">
-
-                      <span className="h-2 w-2 rounded-full bg-gray-900" />
-
-                      <span className="text-xs font-medium !text-gray-500">
+                    <div className="mt-5 flex items-center justify-between rounded-xl border border-violet-100 bg-white px-4 py-3.5">
+                      <span className="text-sm font-medium text-gray-600">
                         Current target
                       </span>
-
+                      <strong className="text-base font-extrabold text-violet-700">
+                        {targetKB || 0} KB
+                      </strong>
                     </div>
 
-                    <strong className="text-base font-extrabold !text-gray-950">
-                      {targetKB || 100} KB
-                    </strong>
-
+                    {note && (
+                      <p className="mt-3 text-xs leading-6 text-gray-500">
+                        {note}
+                      </p>
+                    )}
                   </div>
 
-                  {note && (
-                    <p className="mt-3 text-xs leading-5 !text-gray-400">
-                      {note}
-                    </p>
+                  {error && (
+                    <div
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+                    >
+                      {error}
+                    </div>
                   )}
-
-                </div>
-
-                {/* =================================================
-                    ERROR
-                ================================================= */}
-
-                {error && (
-                  <div
-                    role="alert"
-                    className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium !text-red-600"
-                  >
-                    {error}
-                  </div>
-                )}
-
-                {/* =================================================
-                    COMPRESS BUTTON
-                ================================================= */}
-
-                <div className="mt-5">
 
                   <button
                     type="button"
                     onClick={compress}
                     disabled={loading}
-                    className="w-full rounded-xl bg-gray-950 px-5 py-3.5 text-sm font-bold !text-white shadow-[0_10px_25px_rgba(17,24,39,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-5 py-4 text-sm font-extrabold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    <span className="!text-white">
-                      {loading
-                        ? "Compressing..."
-                        : `Compress ${inputLabel}`}
-                    </span>
+                    {loading ? (
+                      <>
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                        Compressing Image...
+                      </>
+                    ) : (
+                      `Compress ${inputLabel}`
+                    )}
                   </button>
 
-                </div>
-
-                {/* =================================================
-                    RESULT
-                ================================================= */}
-
-                {result && (
-                  <div className="mt-7">
-
-                    <div className="mb-4 flex items-center gap-3">
-
-                      <div className="h-px flex-1 bg-gray-100" />
-
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] !text-gray-400 sm:text-[11px]">
-                        Result
-                      </span>
-
-                      <div className="h-px flex-1 bg-gray-100" />
-
-                    </div>
-
-                    {/* Preview */}
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-                      {/* Original */}
-
-                      <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-4">
-
-                        <div className="mb-3 flex items-center justify-between">
-
-                          <span className="text-xs font-bold !text-gray-700">
-                            Original
-                          </span>
-
-                          <span className="text-[11px] !text-gray-400">
-                            {formatBytes(
-                              file.size
-                            )}
-                          </span>
-
-                        </div>
-
-                        <div className="flex min-h-[210px] items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white p-3 sm:min-h-[230px]">
-
-                          <img
-                            src={preview}
-                            alt={`Original ${inputLabel} image`}
-                            className="max-h-[220px] max-w-full object-contain"
-                          />
-
-                        </div>
-
-                      </div>
-
-                      {/* Compressed */}
-
-                      <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-4">
-
-                        <div className="mb-3 flex items-center justify-between">
-
-                          <span className="text-xs font-bold !text-gray-700">
-                            Compressed
-                          </span>
-
-                          <span className="text-[11px] !text-gray-400">
-                            {formatBytes(
-                              result.file.size
-                            )}
-                          </span>
-
-                        </div>
-
-                        <div className="flex min-h-[210px] items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white p-3 sm:min-h-[230px]">
-
-                          <img
-                            src={result.url}
-                            alt={`Compressed ${inputLabel} image`}
-                            className="max-h-[220px] max-w-full object-contain"
-                          />
-
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    {/* Stats */}
-
-                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-
-                      <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-4 text-center">
-
-                        <strong className="block text-base font-extrabold !text-gray-950">
-                          {formatBytes(
-                            result.file.size
-                          )}
-                        </strong>
-
-                        <span className="mt-1 block text-[11px] font-medium !text-gray-400">
-                          Final size
+                  {/* RESULTS */}
+                  {result && (
+                    <div className="mt-8 border-t border-violet-100 pt-7">
+                      <div className="mb-5 text-center">
+                        <span className="inline-flex rounded-full bg-gradient-to-r from-violet-100 to-blue-100 px-4 py-2 text-xs font-bold text-violet-700">
+                          ✓ Compression Complete
                         </span>
 
+                        <h2 className="mt-3 text-xl font-extrabold text-gray-900 sm:text-2xl">
+                          Your image is ready
+                        </h2>
                       </div>
 
-                      <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-4 text-center">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
+                          <div className="mb-3 flex items-center justify-between gap-2">
+                            <span className="text-sm font-bold text-gray-700">
+                              Original
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {formatBytes(file.size)}
+                            </span>
+                          </div>
 
-                        <strong className="block text-base font-extrabold !text-gray-950">
-                          {saved.toFixed(0)}%
-                        </strong>
+                          <div className="flex min-h-[210px] items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-white p-3">
+                            <img
+                              src={preview}
+                              alt={`Original ${inputLabel} image`}
+                              className="max-h-[240px] max-w-full object-contain"
+                            />
+                          </div>
+                        </div>
 
-                        <span className="mt-1 block text-[11px] font-medium !text-gray-400">
-                          Space saved
-                        </span>
+                        <div className="rounded-2xl border border-violet-100 bg-violet-50/40 p-4">
+                          <div className="mb-3 flex items-center justify-between gap-2">
+                            <span className="text-sm font-bold text-violet-700">
+                              Compressed
+                            </span>
+                            <span className="text-xs text-violet-600">
+                              {formatBytes(result.file.size)}
+                            </span>
+                          </div>
 
+                          <div className="flex min-h-[210px] items-center justify-center overflow-hidden rounded-xl border border-violet-100 bg-white p-3">
+                            <img
+                              src={result.url}
+                              alt={`Compressed ${inputLabel} image`}
+                              className="max-h-[240px] max-w-full object-contain"
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-4 text-center">
+                      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-center">
+                          <strong className="block text-lg font-extrabold text-gray-900">
+                            {formatBytes(result.file.size)}
+                          </strong>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            Final size
+                          </span>
+                        </div>
 
-                        <strong className="block text-base font-extrabold !text-gray-950">
-                          {outputName.toUpperCase()}
-                        </strong>
+                        <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-center">
+                          <strong className="block text-lg font-extrabold text-violet-700">
+                            {saved.toFixed(0)}%
+                          </strong>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            Space saved
+                          </span>
+                        </div>
 
-                        <span className="mt-1 block text-[11px] font-medium !text-gray-400">
-                          Output format
-                        </span>
-
+                        <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-center">
+                          <strong className="block text-lg font-extrabold text-gray-900">
+                            {outputName.toUpperCase()}
+                          </strong>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            Output format
+                          </span>
+                        </div>
                       </div>
 
-                    </div>
-
-                    {/* Status */}
-
-                    <div
-                      className={`mt-4 rounded-xl border px-4 py-3 text-center text-xs font-semibold ${
-                        result.achieved
-                          ? "border-gray-200 bg-gray-50 !text-gray-700"
-                          : "border-amber-200 bg-amber-50 !text-amber-700"
-                      }`}
-                    >
-                      {result.achieved
-                        ? "✓ Target size achieved"
-                        : "Target size could not be reached exactly. Best available result was generated."}
-                    </div>
-
-                    {/* Actions */}
-
-                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-
-                      <button
-                        type="button"
-                        onClick={download}
-                        className="rounded-xl bg-gray-950 px-5 py-3.5 text-sm font-bold !text-white shadow-[0_10px_25px_rgba(17,24,39,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 active:scale-[0.99]"
+                      <div
+                        className={`mt-4 rounded-xl border px-4 py-3 text-center text-xs font-semibold ${
+                          result.achieved
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-amber-200 bg-amber-50 text-amber-700"
+                        }`}
                       >
-                        <span className="!text-white">
-                          Download
-                        </span>
-                      </button>
+                        {result.achieved
+                          ? "✓ Target size achieved"
+                          : "Best available result generated. Exact target size could not be reached."}
+                      </div>
 
-                      <button
-                        type="button"
-                        onClick={reset}
-                        className="rounded-xl border border-gray-200 bg-white px-5 py-3.5 text-sm font-bold !text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 active:scale-[0.99]"
-                      >
-                        <span className="!text-gray-700">
-                          Compress Another
-                        </span>
-                      </button>
+                      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={download}
+                          className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-md shadow-violet-200 transition hover:-translate-y-0.5"
+                        >
+                          ↓ Download Image
+                        </button>
 
+                        <button
+                          type="button"
+                          onClick={reset}
+                          className="rounded-xl border border-violet-200 bg-white px-5 py-3.5 text-sm font-bold text-violet-700 transition hover:bg-violet-50"
+                        >
+                          Compress Another Image
+                        </button>
+                      </div>
                     </div>
+                  )}
+                </>
+              )}
+            </div>
 
-                  </div>
-                )}
-
-              </>
-            )}
-
+            <p className="mt-4 text-center text-xs leading-6 text-gray-500">
+              Pixnora's image compression tool uses your existing browser-side image utilities.
+            </p>
           </section>
 
-          {/* =================================================
-              SEO CONTENT
-          ================================================= */}
+          {/* SEO CONTENT */}
+          <section className="mx-auto mb-12 w-full max-w-5xl rounded-3xl border border-violet-100 bg-white p-5 shadow-sm sm:p-8">
+            <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl">
+              Compress {inputLabel} Images Online
+            </h2>
 
-          <section className="mx-auto mb-10 w-full max-w-4xl rounded-2xl border border-gray-200 bg-gray-50/60 p-5 sm:p-7">
+            <p className="mt-4 text-sm leading-7 text-gray-600">
+              Pixnora helps you reduce image file sizes with a simple online compression tool. Choose an image, set a target size and download the result.
+            </p>
 
-            <div className="flex items-start gap-3">
+            <p className="mt-3 text-sm leading-7 text-gray-600">
+              Smaller images can be useful for website uploads, application forms, documents, email attachments and image sharing.
+            </p>
 
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-sm font-bold !text-gray-900 shadow-sm">
-                ✓
-              </div>
-
-              <div className="min-w-0">
-
-                <h2 className="text-lg font-bold tracking-[-0.3px] !text-gray-950 sm:text-xl">
-                  Compress {inputLabel} Images Online
-                </h2>
-
-                <p className="mt-1 text-xs !text-gray-400">
-                  Free browser-based image compression
-                </p>
-
-              </div>
-
-            </div>
-
-            <div className="mt-5 space-y-4 text-sm leading-7 !text-gray-500">
-
-              <p>
-                Pixnora is a free online image compression
-                tool that helps reduce {inputLabel} image file
-                size quickly. Choose your image, select a target
-                size and download the compressed result.
-              </p>
-
-              <p>
-                You can use the tool to reduce image file sizes
-                for websites, online forms, documents, email,
-                sharing and other situations where smaller images
-                are useful.
-              </p>
-
-              <p>
-                Image processing happens directly in your browser,
-                so your images do not need to be uploaded to a
-                server for normal compression.
-              </p>
-
-            </div>
-
+            <p className="mt-3 text-sm leading-7 text-gray-600">
+              Compression results depend on the original image, its dimensions, format and visual complexity. An exact target size cannot be guaranteed for every image.
+            </p>
           </section>
 
-          {/* =================================================
-              HOW TO USE
-          ================================================= */}
+          {/* HOW TO USE */}
+          <section className="mx-auto mb-12 w-full max-w-5xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-violet-600">
+              Simple process
+            </p>
 
-          <section className="mx-auto mb-10 w-full max-w-4xl">
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900">
+              How to Compress an Image
+            </h2>
 
-            <div className="mb-5">
-
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] !text-gray-400 sm:text-[11px]">
-                Simple process
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">
-                How to compress an image
-              </h2>
-
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-
-                <span className="text-[11px] font-extrabold !text-gray-400">
-                  01
-                </span>
-
-                <h3 className="mt-4 text-sm font-bold !text-gray-950">
-                  Upload your image
-                </h3>
-
-                <p className="mt-2 text-xs leading-6 !text-gray-500">
-                  Choose a {inputLabel} image from your device.
-                </p>
-
-              </div>
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-
-                <span className="text-[11px] font-extrabold !text-gray-400">
-                  02
-                </span>
-
-                <h3 className="mt-4 text-sm font-bold !text-gray-950">
-                  Select target size
-                </h3>
-
-                <p className="mt-2 text-xs leading-6 !text-gray-500">
-                  Choose 50KB, 100KB, 200KB, 500KB or enter a
-                  custom size.
-                </p>
-
-              </div>
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-
-                <span className="text-[11px] font-extrabold !text-gray-400">
-                  03
-                </span>
-
-                <h3 className="mt-4 text-sm font-bold !text-gray-950">
-                  Download
-                </h3>
-
-                <p className="mt-2 text-xs leading-6 !text-gray-500">
-                  Compress the image and download the result.
-                </p>
-
-              </div>
-
-            </div>
-
-          </section>
-
-          {/* =================================================
-              FAQ
-          ================================================= */}
-
-          <section className="mx-auto mb-12 w-full max-w-4xl">
-
-            <div className="mb-5">
-
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] !text-gray-400 sm:text-[11px]">
-                FAQ
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">
-                Frequently Asked Questions
-              </h2>
-
-            </div>
-
-            <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-
-              <details className="group p-5">
-
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold !text-gray-900">
-                  Can I compress {inputLabel} images online?
-
-                  <span className="shrink-0 text-lg !text-gray-400 transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-
-                <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  Yes. Pixnora lets you compress {inputLabel}
-                  images directly in your browser and download the
-                  compressed result.
-                </p>
-
-              </details>
-
-              <details className="group p-5">
-
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold !text-gray-900">
-                  What target sizes are available?
-
-                  <span className="shrink-0 text-lg !text-gray-400 transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-
-                <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  You can choose 50KB, 100KB, 200KB or 500KB.
-                  You can also enter a custom target between 10KB
-                  and 10240KB.
-                </p>
-
-              </details>
-
-              <details className="group p-5">
-
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold !text-gray-900">
-                  Are my images uploaded to a server?
-
-                  <span className="shrink-0 text-lg !text-gray-400 transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-
-                <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  Normal image processing happens directly in your
-                  browser, so your image does not need to be uploaded
-                  to a server.
-                </p>
-
-              </details>
-
-              <details className="group p-5">
-
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold !text-gray-900">
-                  Is the image compressor free?
-
-                  <span className="shrink-0 text-lg !text-gray-400 transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-
-                <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  Yes. Pixnora provides this browser-based image
-                  compression tool for free.
-                </p>
-
-              </details>
-
-            </div>
-
-          </section>
-
-          {/* =================================================
-              RELATED TOOLS
-          ================================================= */}
-
-          <section className="mx-auto mb-16 w-full max-w-4xl">
-
-            <div className="mb-5">
-
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] !text-gray-400 sm:text-[11px]">
-                More tools
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">
-                More Image Tools
-              </h2>
-
-              <p className="mt-2 text-sm !text-gray-500">
-                Explore other tools for compression, conversion
-                and resizing.
-              </p>
-
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {[
-                {
-                  to: "/jpg-compressor",
-                  label: "JPG",
-                  title: "JPG Image Compressor",
-                  description:
-                    "Compress JPG and JPEG images online.",
-                },
-                {
-                  to: "/png-compressor",
-                  label: "PNG",
-                  title: "PNG Image Compressor",
-                  description:
-                    "Reduce PNG image file size online.",
-                },
-                {
-                  to: "/webp-compressor",
-                  label: "WEBP",
-                  title: "WebP Image Compressor",
-                  description:
-                    "Compress WebP images while keeping good quality.",
-                },
-                {
-                  to: "/jpg-to-webp",
-                  label: "JPG →",
-                  title: "JPG to WebP Converter",
-                  description:
-                    "Convert JPG images to WebP format.",
-                },
-                {
-                  to: "/png-to-webp",
-                  label: "PNG →",
-                  title: "PNG to WebP Converter",
-                  description:
-                    "Convert PNG images to WebP format.",
-                },
-                {
-                  to: "/image-resizer",
-                  label: "RESIZE",
-                  title: "Image Resizer",
-                  description:
-                    "Resize images to custom dimensions.",
-                },
-                {
-                  to: "/compress-to-kb",
-                  label: "KB",
-                  title: "Compress Image to Specific KB",
-                  description:
-                    "Compress images to a target KB size.",
-                },
-              ].map((tool) => (
+                ["01", "Upload your image", `Select a ${inputLabel} image from your device.`],
+                ["02", "Choose target size", "Select a preset size or enter a custom target."],
+                ["03", "Download", "Compress the image and download your result."],
+              ].map(([number, heading, text]) => (
+                <div
+                  key={number}
+                  className="rounded-2xl border border-violet-100 bg-white p-5 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-100/70"
+                >
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-100 to-blue-100 text-xs font-extrabold text-violet-700">
+                    {number}
+                  </span>
+
+                  <h3 className="mt-4 text-base font-extrabold text-gray-900">
+                    {heading}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-gray-600">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* FAQ */}
+          <section className="mx-auto mb-12 w-full max-w-5xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-violet-600">
+              FAQ
+            </p>
+
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900">
+              Frequently Asked Questions
+            </h2>
+
+            <div className="mt-5 divide-y divide-violet-100 overflow-hidden rounded-2xl border border-violet-100 bg-white">
+              {[
+                [`Can I compress ${inputLabel} images online?`, "Yes. Upload a supported image, choose a target size and generate a compressed result."],
+                ["Which target sizes are available?", "Choose 50 KB, 100 KB, 200 KB or 500 KB, or enter a custom size between 10 KB and 10240 KB."],
+                ["Will every image reach the exact target size?", "Not always. The result depends on the original image and the compression options available."],
+                ["Is Pixnora free to use?", "Yes. This image compression tool is free to use."],
+                ["Are my images uploaded to a server?", "The tool calls your existing image compression utility. Confirm its implementation to verify the exact processing behavior."],
+              ].map(([question, answer]) => (
+                <details key={question} className="group p-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold text-gray-800">
+                    {question}
+                    <span className="shrink-0 text-xl text-violet-600 transition group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+
+                  <p className="mt-3 text-sm leading-7 text-gray-600">
+                    {answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          {/* RELATED TOOLS */}
+          <section className="mx-auto mb-16 w-full max-w-5xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-violet-600">
+              Explore Pixnora
+            </p>
+
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900">
+              More Image Tools
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Explore more tools for compression, conversion and resizing.
+            </p>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {RELATED_TOOLS.map((tool) => (
                 <Link
                   key={tool.to}
                   to={tool.to}
-                  className="group rounded-2xl border border-gray-200 bg-white p-5 !text-gray-900 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
+                  className="group rounded-2xl border border-violet-100 bg-white p-5 text-gray-900 no-underline transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100/70"
                 >
-
-                  <div className="flex items-start justify-between">
-
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-[9px] font-extrabold !text-gray-700">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex h-11 min-w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-100 to-blue-100 px-2 text-[10px] font-extrabold text-violet-700">
                       {tool.label}
                     </div>
 
-                    <span className="text-lg !text-gray-300 transition-transform group-hover:translate-x-1 group-hover:!text-gray-700">
+                    <span className="text-lg text-violet-400 transition group-hover:translate-x-1 group-hover:text-violet-700">
                       →
                     </span>
-
                   </div>
 
-                  <h3 className="mt-5 text-base font-bold !text-gray-950">
+                  <h3 className="mt-4 text-base font-extrabold text-gray-900">
                     {tool.title}
                   </h3>
 
-                  <p className="mt-1.5 text-sm leading-6 !text-gray-500">
+                  <p className="mt-1.5 text-sm leading-6 text-gray-600">
                     {tool.description}
                   </p>
-
                 </Link>
               ))}
-
             </div>
-
           </section>
-
         </div>
       </main>
     </>
