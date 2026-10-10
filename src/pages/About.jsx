@@ -7,10 +7,10 @@ export default function About() {
 
       <main className="container">
         <section className="content-page">
-          <h1>About Compressly</h1>
+          <h1>About Pixnora</h1>
 
           <p>
-            Compressly is an online image optimization platform
+            Pixnora is an online image optimization platform
             designed to make image compression and conversion
             simple and accessible.
           </p>

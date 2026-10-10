@@ -16,7 +16,7 @@ export default function Terms() {
           <h2>Use of the service</h2>
 
           <p>
-            Compressly provides online image compression,
+            Pixnora provides online image compression,
             conversion and resizing tools for general use.
           </p>
 

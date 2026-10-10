@@ -4,10 +4,10 @@ import Header from "../components/Header";
 
 export default function Contact() {
   useEffect(() => {
-    document.title = "Contact Compressly | Image Compression Support";
+    document.title = "Contact Pixnora | Image Compression Support";
 
     const description =
-      "Contact Compressly for questions, suggestions, feedback or problems with our online image compression, conversion and resizing tools.";
+      "Contact Pixnora for questions, suggestions, feedback or problems with our online image compression, conversion and resizing tools.";
 
     let metaDescription = document.querySelector(
       'meta[name="description"]'
@@ -33,7 +33,7 @@ export default function Contact() {
 
     canonical.setAttribute(
       "href",
-      "https://image-compressor-drab-pi.vercel.app/contact"
+      "https://pixnora.devs.surf/contact"
     );
   }, []);
 
@@ -57,7 +57,7 @@ export default function Contact() {
             </div>
 
             <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-[-1.2px] !text-gray-950 sm:text-4xl lg:text-5xl">
-              Contact Compressly
+              Contact Pixnora
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-sm leading-7 !text-gray-500 sm:text-base">
@@ -116,7 +116,7 @@ export default function Contact() {
                 </a>
 
                 <p className="mt-3 text-xs leading-6 !text-gray-400">
-                  Replace this placeholder with your actual Compressly
+                  Replace this placeholder with your actual Pixnora
                   support email before publishing the website.
                 </p>
 
@@ -155,7 +155,7 @@ export default function Contact() {
                 </h3>
 
                 <p className="mt-2 text-xs leading-6 !text-gray-500">
-                  Ask us about using Compressly and our image tools.
+                  Ask us about using Pixnora and our image tools.
                 </p>
               </div>
 
@@ -183,7 +183,7 @@ export default function Contact() {
                 </h3>
 
                 <p className="mt-2 text-xs leading-6 !text-gray-500">
-                  Share ideas that could make Compressly better.
+                  Share ideas that could make Pixnora better.
                 </p>
               </div>
 
@@ -200,7 +200,7 @@ export default function Contact() {
               <div className="text-center">
 
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] !text-gray-400">
-                  Compressly Tools
+                  Pixnora Tools
                 </p>
 
                 <h2 className="mt-2 text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">

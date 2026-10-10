@@ -4,10 +4,10 @@ import Header from "../components/Header";
 
 export default function PrivacyPolicy() {
   useEffect(() => {
-    document.title = "Privacy Policy | Compressly";
+    document.title = "Privacy Policy | Pixnora";
 
     const description =
-      "Read the Compressly Privacy Policy to learn how our online image compression, conversion and resizing tools handle your information.";
+      "Read the Pixnora Privacy Policy to learn how our online image compression, conversion and resizing tools handle your information.";
 
     let metaDescription = document.querySelector(
       'meta[name="description"]'
@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
 
     canonical.setAttribute(
       "href",
-      "https://image-compressor-drab-pi.vercel.app/privacy-policy"
+      "https://pixnora.devs.surf/privacy-policy"
     );
   }, []);
 
@@ -42,7 +42,7 @@ export default function PrivacyPolicy() {
       number: "01",
       title: "Information we collect",
       text:
-        "Compressly is designed so that image processing can happen directly in your browser. We do not need to receive your images to perform normal compression and conversion.",
+        "Pixnora is designed so that image processing can happen directly in your browser. We do not need to receive your images to perform normal compression and conversion.",
     },
     {
       number: "02",
@@ -87,7 +87,7 @@ export default function PrivacyPolicy() {
             </h1>
 
             <p className="mx-auto mt-3 max-w-xl text-sm leading-6 !text-gray-500 sm:text-base sm:leading-7">
-              Learn how Compressly handles information when you use
+              Learn how Pixnora handles information when you use
               our online image tools.
             </p>
 
@@ -118,7 +118,7 @@ export default function PrivacyPolicy() {
                   </h2>
 
                   <p className="mt-1.5 text-xs leading-6 !text-gray-500 sm:text-sm sm:leading-7">
-                    Compressly is designed with browser-based image
+                    Pixnora is designed with browser-based image
                     processing in mind.
                   </p>
 
@@ -196,7 +196,7 @@ export default function PrivacyPolicy() {
               </div>
 
               <p className="min-w-0 text-xs leading-6 !text-gray-500 sm:text-sm sm:leading-7">
-                Compressly provides browser-based image tools for
+                Pixnora provides browser-based image tools for
                 compressing, converting and resizing images. For
                 normal image processing, your image does not need to
                 be uploaded to a server.
@@ -213,7 +213,7 @@ export default function PrivacyPolicy() {
             <div className="text-center">
 
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] !text-gray-400">
-                Compressly Tools
+                Pixnora Tools
               </p>
 
               <h2 className="mt-2 text-xl font-bold tracking-[-0.5px] !text-gray-950 sm:text-2xl">
@@ -298,7 +298,7 @@ export default function PrivacyPolicy() {
           <footer className="pb-4 pt-8 text-center sm:pt-10">
 
             <p className="text-[11px] !text-gray-400 sm:text-xs">
-              © 2026 Compressly. All rights reserved.
+              © 2026 Pixnora. All rights reserved.
             </p>
 
           </footer>

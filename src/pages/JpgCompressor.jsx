@@ -9,7 +9,7 @@ export default function JpgCompressor() {
       inputLabel="JPG / JPEG"
       outputType="image/jpeg"
       outputName="jpg"
-      seoTitle="JPG Compressor Online – Compress JPG & JPEG Images | Compressly"
+      seoTitle="JPG Compressor Online – Compress JPG & JPEG Images | Pixnora"
       seoDescription="Compress JPG and JPEG images online for free. Reduce JPG file size while maintaining good image quality."
       canonicalPath="/jpg-compressor"
     />

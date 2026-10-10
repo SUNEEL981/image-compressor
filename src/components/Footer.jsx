@@ -8,7 +8,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="footer-brand">
           <Link to="/" className="footer-logo">
-            Compressly
+            Pixnora
           </Link>
 
           <p>
@@ -55,7 +55,7 @@ export default function Footer() {
           <h4>Company</h4>
 
           <Link to="/about">
-            About Compressly
+            About Pixnora
           </Link>
 
           <Link to="/contact">
@@ -75,7 +75,7 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <span>
-          © 2026 Compressly. All rights reserved.
+          © 2026 Pixnora. All rights reserved.
         </span>
       </div>
     </footer>

@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <header className="navbar">
       <Link to="/" className="logo">
-        Compressly
+        Pixnora
       </Link>
 
       <nav className="nav-links">

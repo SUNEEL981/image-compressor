@@ -187,7 +187,7 @@ export default function Home() {
 
               <div className="space-y-4 text-sm leading-7 text-gray-500">
                 <p>
-                  Compressly provides free online tools for compressing,
+                  Pixnora provides free online tools for compressing,
                   converting and resizing images. Image processing happens
                   directly in your browser, so your images do not need to be
                   uploaded to a server.

@@ -22,7 +22,7 @@ export default function ImageResizer() {
 
   useEffect(() => {
     const title =
-      "Resize Images Online – JPG, PNG & WebP Image Resizer | Compressly";
+      "Resize Images Online – JPG, PNG & WebP Image Resizer | Pixnora";
 
     const description =
       "Resize JPG, PNG and WebP images online for free. Set custom width and height while keeping the original aspect ratio.";
@@ -53,7 +53,7 @@ export default function ImageResizer() {
 
     canonical.setAttribute(
       "href",
-      "https://image-compressor-drab-pi.vercel.app/image-resizer"
+      "https://pixnora.devs.surf/image-resizer"
     );
   }, []);
 
@@ -565,7 +565,7 @@ export default function ImageResizer() {
 
               <p>
                 Resize images online by entering your preferred width
-                and height in pixels. Compressly supports JPG, PNG and
+                and height in pixels. Pixnora supports JPG, PNG and
                 WebP images and lets you keep the original aspect ratio
                 when changing dimensions.
               </p>

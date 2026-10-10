@@ -12,10 +12,10 @@ export default function CompressToKb() {
 
   useEffect(() => {
     document.title =
-      "Compress Image to 50KB, 100KB, 200KB & 500KB Online | Compressly";
+      "Compress Image to 50KB, 100KB, 200KB & 500KB Online | Pixnora";
 
     const description =
-      "Compress JPG, PNG and WebP images to 50KB, 100KB, 200KB or a custom size online for free with Compressly.";
+      "Compress JPG, PNG and WebP images to 50KB, 100KB, 200KB or a custom size online for free with Pixnora.";
 
     let metaDescription = document.querySelector(
       'meta[name="description"]'
@@ -39,7 +39,7 @@ export default function CompressToKb() {
 
     canonical.setAttribute(
       "href",
-      "https://image-compressor-drab-pi.vercel.app/compress-to-kb"
+      "https://pixnora.devs.surf/compress-to-kb"
     );
   }, []);
 
@@ -259,7 +259,7 @@ export default function CompressToKb() {
             <div className="space-y-5 text-sm leading-7 text-gray-500">
               <p>
                 Need to reduce an image below a specific file-size limit?
-                Compressly lets you compress JPG, PNG and WebP images to a
+                Pixnora lets you compress JPG, PNG and WebP images to a
                 selected target size. Choose 50KB, 100KB, 200KB or 500KB,
                 or enter your own custom size.
               </p>
@@ -273,7 +273,7 @@ export default function CompressToKb() {
 
               <p>
                 Select your target size, upload your image and let
-                Compressly reduce the file size while attempting to
+                Pixnora reduce the file size while attempting to
                 preserve useful image quality.
               </p>
             </div>

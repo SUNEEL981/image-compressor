@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SITE_NAME = "Compressly";
+const SITE_NAME = "Pixnora";
 
 export default function SEO({
   title,
@@ -76,7 +76,7 @@ export default function SEO({
 
     setProperty(
       "og:image:alt",
-      "Compressly - Free Online Image Compressor"
+      "Pixnora - Free Online Image Compressor"
     );
 
     /* =====================================================
@@ -147,12 +147,12 @@ export default function SEO({
     };
 
     addJsonLd(
-      "compressly-organization-schema",
+      "Pixnora-organization-schema",
       organizationSchema
     );
 
     addJsonLd(
-      "compressly-website-schema",
+      "Pixnora-website-schema",
       websiteSchema
     );
 
@@ -162,11 +162,11 @@ export default function SEO({
 
     return () => {
       document
-        .getElementById("compressly-organization-schema")
+        .getElementById("Pixnora-organization-schema")
         ?.remove();
 
       document
-        .getElementById("compressly-website-schema")
+        .getElementById("Pixnora-website-schema")
         ?.remove();
     };
   }, [title, description, path, type]);

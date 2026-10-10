@@ -46,7 +46,7 @@ export default function ToolPage({
   useEffect(() => {
     const finalTitle =
       seoTitle ||
-      `${title} Online – Compress ${inputLabel} Images | Compressly`;
+      `${title} Online – Compress ${inputLabel} Images | Pixnora`;
 
     const finalDescription =
       seoDescription ||
@@ -81,7 +81,7 @@ export default function ToolPage({
 
     const canonicalUrl =
       canonicalPath
-        ? `https://image-compressor-drab-pi.vercel.app${canonicalPath}`
+        ? `https://pixnora.devs.surf${canonicalPath}`
         : window.location.href.split("#")[0].split("?")[0];
 
     canonical.setAttribute(
@@ -821,7 +821,7 @@ export default function ToolPage({
             <div className="mt-5 space-y-4 text-sm leading-7 !text-gray-500">
 
               <p>
-                Compressly is a free online image compression
+                Pixnora is a free online image compression
                 tool that helps reduce {inputLabel} image file
                 size quickly. Choose your image, select a target
                 size and download the compressed result.
@@ -948,7 +948,7 @@ export default function ToolPage({
                 </summary>
 
                 <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  Yes. Compressly lets you compress {inputLabel}
+                  Yes. Pixnora lets you compress {inputLabel}
                   images directly in your browser and download the
                   compressed result.
                 </p>
@@ -1002,7 +1002,7 @@ export default function ToolPage({
                 </summary>
 
                 <p className="mt-3 text-sm leading-7 !text-gray-500">
-                  Yes. Compressly provides this browser-based image
+                  Yes. Pixnora provides this browser-based image
                   compression tool for free.
                 </p>
 

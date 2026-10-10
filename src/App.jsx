@@ -190,8 +190,8 @@ function App() {
             element={
               <>
                 <SEO
-                  title="About Compressly"
-                  description="Learn about Compressly, a simple browser-based collection of image compression and conversion tools."
+                  title="About Pixnora"
+                  description="Learn about Pixnora, a simple browser-based collection of image compression and conversion tools."
                   path="/about"
                 />
                 <About />
@@ -206,7 +206,7 @@ function App() {
               <>
                 <SEO
                   title="Privacy Policy"
-                  description="Read the Compressly privacy policy and learn how image processing and website data are handled."
+                  description="Read the Pixnora privacy policy and learn how image processing and website data are handled."
                   path="/privacy-policy"
                 />
                 <PrivacyPolicy />
@@ -221,7 +221,7 @@ function App() {
               <>
                 <SEO
                   title="Terms of Use"
-                  description="Read the Compressly terms of use for using our online image compression and conversion tools."
+                  description="Read the Pixnora terms of use for using our online image compression and conversion tools."
                   path="/terms"
                 />
                 <Terms />
@@ -235,8 +235,8 @@ function App() {
             element={
               <>
                 <SEO
-                  title="Contact Compressly"
-                  description="Contact Compressly for questions, feedback, suggestions or issues related to our image tools."
+                  title="Contact Pixnora"
+                  description="Contact Pixnora for questions, feedback, suggestions or issues related to our image tools."
                   path="/contact"
                 />
                 <Contact />
