@@ -1,6 +1,8 @@
+
 import { useEffect } from "react";
 
 const SITE_NAME = "Pixnora";
+const SITE_URL = "https://pixnora.devs.surf";
 
 export default function SEO({
   title,
@@ -9,22 +11,19 @@ export default function SEO({
   type = "website",
 }) {
   useEffect(() => {
-    const siteUrl = window.location.origin;
-    const canonicalUrl = `${siteUrl}${path}`;
-    const fullTitle = `${title} | ${SITE_NAME}`;
-    const logoUrl = `${siteUrl}/favicon.svg`;
-    const ogImageUrl = `${siteUrl}/og-image.png`;
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    const canonicalUrl = `${SITE_URL}${normalizedPath}`;
+    const fullTitle = title
+      ? `${title} | ${SITE_NAME}`
+      : "Free Image Compressor Online – JPG, PNG & WebP | Pixnora";
+
+    const logoUrl = `${SITE_URL}/favicon.svg`;
+    const ogImageUrl = `${SITE_URL}/og-image.png`;
 
     document.title = fullTitle;
 
-    /* =====================================================
-       META HELPERS
-       ===================================================== */
-
     const setMeta = (name, content) => {
-      let element = document.querySelector(
-        `meta[name="${name}"]`
-      );
+      let element = document.querySelector(`meta[name="${name}"]`);
 
       if (!element) {
         element = document.createElement("meta");
@@ -32,7 +31,7 @@ export default function SEO({
         document.head.appendChild(element);
       }
 
-      element.setAttribute("content", content);
+      element.setAttribute("content", content || "");
     };
 
     const setProperty = (property, content) => {
@@ -46,55 +45,35 @@ export default function SEO({
         document.head.appendChild(element);
       }
 
-      element.setAttribute("content", content);
+      element.setAttribute("content", content || "");
     };
 
-    /* =====================================================
-       BASIC SEO
-       ===================================================== */
-
+    // Basic SEO
     setMeta("description", description);
-
     setMeta(
       "robots",
       "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     );
 
-    /* =====================================================
-       OPEN GRAPH
-       ===================================================== */
-
+    // Open Graph
     setProperty("og:title", fullTitle);
     setProperty("og:description", description);
     setProperty("og:type", type);
     setProperty("og:url", canonicalUrl);
     setProperty("og:site_name", SITE_NAME);
-
     setProperty("og:image", ogImageUrl);
     setProperty("og:image:width", "1200");
     setProperty("og:image:height", "630");
+    setProperty("og:image:alt", "Pixnora - Free Online Image Compressor");
 
-    setProperty(
-      "og:image:alt",
-      "Pixnora - Free Online Image Compressor"
-    );
-
-    /* =====================================================
-       TWITTER / X
-       ===================================================== */
-
+    // Twitter / X
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", fullTitle);
     setMeta("twitter:description", description);
     setMeta("twitter:image", ogImageUrl);
 
-    /* =====================================================
-       CANONICAL
-       ===================================================== */
-
-    let canonical = document.querySelector(
-      'link[rel="canonical"]'
-    );
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
 
     if (!canonical) {
       canonical = document.createElement("link");
@@ -104,34 +83,24 @@ export default function SEO({
 
     canonical.setAttribute("href", canonicalUrl);
 
-    /* =====================================================
-       ORGANIZATION STRUCTURED DATA
-       ===================================================== */
-
+    // Organization structured data
     const organizationSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: SITE_NAME,
-      url: siteUrl,
+      url: SITE_URL,
       logo: logoUrl,
     };
 
-    /* =====================================================
-       WEBSITE STRUCTURED DATA
-       ===================================================== */
-
+    // Website structured data
     const websiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: SITE_NAME,
-      url: siteUrl,
+      url: SITE_URL,
       description:
         "Free online image compression, conversion and resizing tools.",
     };
-
-    /* =====================================================
-       JSON-LD HELPER
-       ===================================================== */
 
     const addJsonLd = (id, schema) => {
       let script = document.getElementById(id);
@@ -146,29 +115,8 @@ export default function SEO({
       script.textContent = JSON.stringify(schema);
     };
 
-    addJsonLd(
-      "Pixnora-organization-schema",
-      organizationSchema
-    );
-
-    addJsonLd(
-      "Pixnora-website-schema",
-      websiteSchema
-    );
-
-    /* =====================================================
-       CLEANUP
-       ===================================================== */
-
-    return () => {
-      document
-        .getElementById("Pixnora-organization-schema")
-        ?.remove();
-
-      document
-        .getElementById("Pixnora-website-schema")
-        ?.remove();
-    };
+    addJsonLd("Pixnora-organization-schema", organizationSchema);
+    addJsonLd("Pixnora-website-schema", websiteSchema);
   }, [title, description, path, type]);
 
   return null;
