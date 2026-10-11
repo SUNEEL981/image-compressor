@@ -1,6 +1,5 @@
 
 import { useEffect, useRef, useState } from "react";
-
 import {
   MAX_FILE_SIZE,
   formatBytes,
@@ -8,6 +7,12 @@ import {
   compressToTarget,
   createOutputFile,
 } from "../utils/imageTools";
+
+const SUPPORTED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
 
 function createItem(file) {
   return {
@@ -23,57 +28,89 @@ function createItem(file) {
   };
 }
 
-function UploadIcon() {
+function UploadIcon({ className = "h-7 w-7" }) {
   return (
     <svg
+      aria-hidden="true"
       viewBox="0 0 24 24"
       fill="none"
-      className="h-9 w-9"
+      className={className}
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 16V4m0 0L7 9m5-5 5 5" />
+      <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+    </svg>
+  );
+}
+
+function ImageIcon({ className = "h-6 w-6" }) {
+  return (
+    <svg
       aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="m4 17 5-5 3 3 3-4 5 6" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="none"
+      className="h-4 w-4"
     >
       <path
-        d="M12 16V4m0 0L7 9m5-5 5 5"
+        d="m5 10 3 3 7-7"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-      <path
-        d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
       />
     </svg>
   );
 }
 
-function ImageIcon() {
+function ActionButton({
+  children,
+  onClick,
+  variant = "secondary",
+  disabled = false,
+  className = "",
+}) {
+  const variants = {
+    primary:
+      "border-transparent bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md shadow-violet-200/60 hover:from-violet-700 hover:to-blue-700",
+    success:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
+    danger:
+      "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
+    secondary:
+      "border-slate-200 bg-white text-slate-700 hover:border-violet-200 hover:bg-violet-50",
+  };
+
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-6 w-6"
-      aria-hidden="true"
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex min-h-10 items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-bold transition duration-200 focus:outline-none focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
     >
-      <rect
-        x="3"
-        y="3"
-        width="18"
-        height="18"
-        rx="4"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-      <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-      <path
-        d="m4 17 5-5 3 3 3-4 5 6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      {children}
+    </button>
   );
 }
 
@@ -86,6 +123,7 @@ export default function MultiImageCompressor({
   const inputRef = useRef(null);
   const abortControllerRef = useRef(null);
   const itemsRef = useRef([]);
+  const mountedRef = useRef(true);
 
   const [items, setItems] = useState([]);
   const [dragging, setDragging] = useState(false);
@@ -97,28 +135,32 @@ export default function MultiImageCompressor({
   }, [items]);
 
   useEffect(() => {
+    mountedRef.current = true;
+
     return () => {
+      mountedRef.current = false;
+      abortControllerRef.current?.abort();
+
       itemsRef.current.forEach((item) => {
         if (item.result?.url) {
           URL.revokeObjectURL(item.result.url);
         }
       });
-
-      abortControllerRef.current?.abort();
     };
   }, []);
 
   function updateItem(id, updates) {
-    setItems((previous) =>
-      previous.map((item) =>
+    setItems((previous) => {
+      const next = previous.map((item) =>
         item.id === id ? { ...item, ...updates } : item
-      )
-    );
+      );
+      itemsRef.current = next;
+      return next;
+    });
   }
 
   function addFiles(fileList) {
     const files = Array.from(fileList || []);
-
     if (!files.length) return;
 
     setError("");
@@ -127,8 +169,8 @@ export default function MultiImageCompressor({
     const errors = [];
 
     files.forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        errors.push(`${file.name}: Please select an image file.`);
+      if (!SUPPORTED_TYPES.includes(file.type)) {
+        errors.push(`${file.name}: Only JPG, PNG and WebP are supported.`);
         return;
       }
 
@@ -147,7 +189,11 @@ export default function MultiImageCompressor({
     }
 
     if (validItems.length) {
-      setItems((previous) => [...previous, ...validItems]);
+      setItems((previous) => {
+        const next = [...previous, ...validItems];
+        itemsRef.current = next;
+        return next;
+      });
     }
   }
 
@@ -166,12 +212,14 @@ export default function MultiImageCompressor({
     if (isCompressing) return;
 
     const item = itemsRef.current.find((entry) => entry.id === id);
+    if (item?.result?.url) URL.revokeObjectURL(item.result.url);
 
-    if (item?.result?.url) {
-      URL.revokeObjectURL(item.result.url);
-    }
+    setItems((previous) => {
+      const next = previous.filter((entry) => entry.id !== id);
+      itemsRef.current = next;
+      return next;
+    });
 
-    setItems((previous) => previous.filter((item) => item.id !== id));
     setError("");
   }
 
@@ -179,23 +227,22 @@ export default function MultiImageCompressor({
     if (isCompressing) return;
 
     itemsRef.current.forEach((item) => {
-      if (item.result?.url) {
-        URL.revokeObjectURL(item.result.url);
-      }
+      if (item.result?.url) URL.revokeObjectURL(item.result.url);
     });
 
+    itemsRef.current = [];
     setItems([]);
     setError("");
 
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   async function compressOne(item, controller) {
     if (controller.signal.aborted) return false;
 
-    if (item.file.size <= targetSize * 1024) {
+    const targetBytes = targetSize * 1024;
+
+    if (item.file.size <= targetBytes) {
       const previewUrl = URL.createObjectURL(item.file);
 
       updateItem(item.id, {
@@ -223,13 +270,16 @@ export default function MultiImageCompressor({
     try {
       const result = await compressToTarget(
         item.file,
-        targetSize * 1024,
+        targetBytes,
         outputType,
         {
           signal: controller.signal,
           onProgress: (progress) => {
             updateItem(item.id, {
-              progress: Math.max(0, Math.min(100, Number(progress) || 0)),
+              progress: Math.max(
+                0,
+                Math.min(100, Number(progress) || 0)
+              ),
             });
           },
         }
@@ -264,7 +314,6 @@ export default function MultiImageCompressor({
           progress: 0,
           error: "",
         });
-
         return false;
       }
 
@@ -288,7 +337,9 @@ export default function MultiImageCompressor({
     setError("");
 
     try {
-      for (const item of itemsRef.current) {
+      const queue = [...itemsRef.current];
+
+      for (const item of queue) {
         if (controller.signal.aborted) break;
 
         const current = itemsRef.current.find(
@@ -304,7 +355,7 @@ export default function MultiImageCompressor({
         abortControllerRef.current = null;
       }
 
-      setIsCompressing(false);
+      if (mountedRef.current) setIsCompressing(false);
     }
   }
 
@@ -317,7 +368,6 @@ export default function MultiImageCompressor({
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
-
     setIsCompressing(true);
 
     try {
@@ -327,7 +377,7 @@ export default function MultiImageCompressor({
         abortControllerRef.current = null;
       }
 
-      setIsCompressing(false);
+      if (mountedRef.current) setIsCompressing(false);
     }
   }
 
@@ -372,14 +422,13 @@ export default function MultiImageCompressor({
   ).length;
 
   return (
-    <section className="w-full">
-      {/* Premium upload area */}
+    <section className="w-full min-w-0">
+      {/* Upload card */}
       <div
-        role="button"
-        tabIndex={0}
-        aria-label="Upload images"
         onClick={() => inputRef.current?.click()}
         onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             inputRef.current?.click();
@@ -395,36 +444,47 @@ export default function MultiImageCompressor({
           }
         }}
         onDrop={handleDrop}
-        className={`group relative isolate cursor-pointer overflow-hidden rounded-[28px] border-2 border-dashed p-6 text-center transition-all duration-300 sm:p-10 ${
+        role="button"
+        tabIndex={0}
+        aria-label="Upload images. Click to browse or drag and drop files."
+        className={`group relative isolate w-full min-w-0 cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-300 sm:rounded-3xl sm:px-8 sm:py-12 lg:px-12 lg:py-14 ${
           dragging
-            ? "scale-[1.01] border-violet-500 bg-violet-100 shadow-xl shadow-violet-200/50"
-            : "border-violet-200 bg-gradient-to-br from-violet-50 via-white to-blue-50 hover:border-violet-400 hover:shadow-xl hover:shadow-violet-100/70"
+            ? "scale-[1.005] border-violet-500 bg-violet-50 shadow-xl shadow-violet-100"
+            : "border-violet-300 bg-gradient-to-br from-violet-50 via-white to-blue-50 hover:border-violet-500 hover:shadow-xl hover:shadow-violet-100/70"
         }`}
       >
-        <div className="pointer-events-none absolute -left-16 -top-16 h-44 w-44 rounded-full bg-violet-200/30 blur-3xl transition group-hover:bg-violet-300/40" />
-        <div className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full bg-blue-200/40 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 -top-16 h-44 w-44 rounded-full bg-violet-200/40 blur-3xl transition group-hover:bg-violet-300/50"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full bg-blue-200/50 blur-3xl"
+        />
 
-        <div className="relative mx-auto flex max-w-2xl flex-col items-center">
+        <div className="relative mx-auto flex w-full max-w-2xl min-w-0 flex-col items-center">
           <div
-            className={`mb-5 flex h-[76px] w-[76px] items-center justify-center rounded-[24px] bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-lg shadow-violet-300/50 transition duration-300 ${
-              dragging ? "scale-110 rotate-3" : "group-hover:-translate-y-1"
+            className={`mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-lg shadow-violet-300/50 transition duration-300 sm:h-[76px] sm:w-[76px] sm:rounded-[24px] ${
+              dragging
+                ? "scale-110 rotate-3"
+                : "group-hover:-translate-y-1"
             }`}
           >
-            <UploadIcon />
+            <UploadIcon className="h-7 w-7 sm:h-9 sm:w-9" />
           </div>
 
-          <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white/80 px-3.5 py-1.5 text-xs font-bold text-violet-700 shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="mb-3 inline-flex max-w-full items-center gap-2 rounded-full border border-violet-100 bg-white/90 px-3 py-1.5 text-[10px] font-extrabold tracking-wide text-violet-700 shadow-sm sm:px-3.5 sm:text-xs">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
             FREE ONLINE IMAGE TOOL
           </span>
 
-          <h3 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
-            {dragging ? "Drop your images here" : title}
+          <h3 className="mt-1 break-words text-xl font-extrabold leading-tight tracking-tight !text-slate-950 sm:text-2xl lg:text-3xl">
+            {dragging ? "Drop Your Images Here" : title}
           </h3>
 
-          <p className="mt-3 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">
-            Drag and drop your images here, or browse your device to select
-            multiple files at once.
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-7 !text-slate-600 sm:text-base sm:leading-8">
+            Drag and drop JPG, PNG or WebP images here, or browse
+            your device to select multiple files.
           </p>
 
           <button
@@ -433,9 +493,9 @@ export default function MultiImageCompressor({
               event.stopPropagation();
               inputRef.current?.click();
             }}
-            className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-violet-300/40 transition hover:-translate-y-0.5 hover:from-violet-700 hover:to-blue-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-violet-200"
+            className="mt-6 inline-flex min-h-12 w-full max-w-xs items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-violet-200/70 transition-all duration-200 hover:-translate-y-0.5 hover:from-violet-700 hover:to-blue-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto sm:min-w-52"
           >
-            <UploadIcon />
+            <UploadIcon className="h-5 w-5" />
             Choose Images
           </button>
 
@@ -448,29 +508,25 @@ export default function MultiImageCompressor({
             onChange={handleInput}
           />
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500">
-            <span className="inline-flex items-center gap-1.5">
-              <svg viewBox="0 0 20 20" className="h-4 w-4 text-emerald-600" fill="none">
-                <path d="m5 10 3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              JPG, PNG & WebP
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <svg viewBox="0 0 20 20" className="h-4 w-4 text-emerald-600" fill="none">
-                <path d="m5 10 3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Multiple files
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <svg viewBox="0 0 20 20" className="h-4 w-4 text-emerald-600" fill="none">
-                <path d="m5 10 3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Max {formatBytes(MAX_FILE_SIZE)} per image
-            </span>
+          <div className="mt-6 flex max-w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs font-semibold text-slate-600 sm:gap-x-5 sm:text-sm">
+            {["JPG, PNG & WebP", "Multiple files", `Max ${formatBytes(MAX_FILE_SIZE)} per image`].map(
+              (label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <span className="text-emerald-600">
+                    <CheckIcon />
+                  </span>
+                  {label}
+                </span>
+              )
+            )}
           </div>
 
-          <p className="mt-4 text-xs text-slate-400">
-            Your images are processed in your browser.
+          <p className="mt-4 text-xs leading-5 text-slate-500">
+            Your images are processed in your browser where supported by
+            the selected tool.
           </p>
         </div>
       </div>
@@ -478,87 +534,89 @@ export default function MultiImageCompressor({
       {error && (
         <div
           role="alert"
-          className="mt-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+          className="mt-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700"
         >
-          <span className="font-bold">!</span>
-          <p>{error}</p>
+          <span className="font-extrabold">!</span>
+          <p className="min-w-0 break-words">{error}</p>
         </div>
       )}
 
-      {/* Uploaded image summary and actions */}
+      {/* Selected image list */}
       {items.length > 0 && (
-        <div className="mt-7">
-          <div className="mb-4 flex flex-col gap-4 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-base font-extrabold text-slate-900">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+        <div className="mt-7 min-w-0">
+          <div className="mb-4 flex min-w-0 flex-col gap-4 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-base font-extrabold text-slate-950 sm:text-lg">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
                   <ImageIcon />
                 </span>
-                Your images
+                Selected Images
                 <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700">
                   {items.length}
                 </span>
               </div>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-xs leading-6 text-slate-500 sm:text-sm">
                 {completedCount} completed
                 {remainingCount > 0 && ` · ${remainingCount} remaining`}
                 {failedCount > 0 && ` · ${failedCount} failed`}
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full flex-wrap gap-2 sm:w-auto">
               {!isCompressing ? (
-                <button
-                  type="button"
+                <ActionButton
+                  variant="primary"
                   onClick={compressAll}
                   disabled={remainingCount === 0}
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 sm:flex-none"
                 >
                   Compress All
-                </button>
+                </ActionButton>
               ) : (
-                <button
-                  type="button"
+                <ActionButton
+                  variant="danger"
                   onClick={cancelCompression}
-                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100"
+                  className="flex-1 sm:flex-none"
                 >
                   Cancel
-                </button>
+                </ActionButton>
               )}
 
               {completedCount > 0 && (
-                <button
-                  type="button"
+                <ActionButton
+                  variant="success"
                   onClick={downloadAll}
                   disabled={isCompressing}
-                  className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+                  className="flex-1 sm:flex-none"
                 >
                   Download All
-                </button>
+                </ActionButton>
               )}
 
-              <button
-                type="button"
+              <ActionButton
                 onClick={clearAll}
                 disabled={isCompressing}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+                className="flex-1 sm:flex-none"
               >
                 Clear All
-              </button>
+              </ActionButton>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3">
             {items.map((item) => {
               const saved = item.result?.file
-                ? reductionPercent(item.file.size, item.result.file.size)
+                ? reductionPercent(
+                    item.file.size,
+                    item.result.file.size
+                  )
                 : 0;
 
               return (
-                <div
+                <article
                   key={item.id}
-                  className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-violet-200 hover:shadow-md sm:flex-row sm:items-center"
+                  className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-violet-200 hover:shadow-md sm:p-5 lg:flex-row lg:items-center"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-100 to-blue-100 text-violet-700">
@@ -567,17 +625,18 @@ export default function MultiImageCompressor({
 
                     <div className="min-w-0 flex-1">
                       <p
-                        className="truncate text-sm font-bold text-slate-800"
+                        className="truncate text-sm font-bold text-slate-900 sm:text-base"
                         title={item.file.name}
                       >
                         {item.file.name}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
+
+                      <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                         Original: {formatBytes(item.file.size)}
                       </p>
 
                       {item.status === "completed" && item.result?.file && (
-                        <p className="mt-1 text-xs font-semibold text-emerald-700">
+                        <p className="mt-1 break-words text-xs font-semibold text-emerald-700 sm:text-sm">
                           Output: {formatBytes(item.result.file.size)}
                           {" · "}
                           {saved > 0
@@ -588,7 +647,7 @@ export default function MultiImageCompressor({
                     </div>
                   </div>
 
-                  <div className="min-w-0 sm:w-44">
+                  <div className="min-w-0 lg:w-44 lg:shrink-0">
                     {item.status === "waiting" && (
                       <span className="inline-flex rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">
                         Waiting
@@ -597,11 +656,18 @@ export default function MultiImageCompressor({
 
                     {item.status === "compressing" && (
                       <div>
-                        <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-violet-700">
+                        <div className="mb-1.5 flex items-center justify-between gap-2 text-xs font-semibold text-violet-700">
                           <span>Processing</span>
                           <span>{item.progress}%</span>
                         </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-violet-100">
+                        <div
+                          className="h-2 overflow-hidden rounded-full bg-violet-100"
+                          role="progressbar"
+                          aria-valuenow={item.progress}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`Compressing ${item.file.name}`}
+                        >
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-violet-600 to-blue-500 transition-all duration-200"
                             style={{ width: `${item.progress}%` }}
@@ -621,48 +687,44 @@ export default function MultiImageCompressor({
                         <span className="inline-flex rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700">
                           Failed
                         </span>
-                        <p className="mt-1 break-words text-xs text-rose-600">
+                        <p className="mt-1 break-words text-xs leading-5 text-rose-600">
                           {item.error}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-2 sm:justify-end">
+                  <div className="flex flex-wrap gap-2 lg:shrink-0 lg:justify-end">
                     {item.status === "completed" && (
-                      <button
-                        type="button"
+                      <ActionButton
+                        variant="success"
                         onClick={() => downloadFile(item)}
                         disabled={isCompressing}
-                        className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50"
                       >
                         Download
-                      </button>
+                      </ActionButton>
                     )}
 
                     {item.status === "error" && (
-                      <button
-                        type="button"
+                      <ActionButton
+                        variant="primary"
                         onClick={() => retryItem(item)}
                         disabled={isCompressing}
-                        className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700 disabled:opacity-50"
                       >
                         Retry
-                      </button>
+                      </ActionButton>
                     )}
 
                     {item.status !== "compressing" && (
-                      <button
-                        type="button"
+                      <ActionButton
                         onClick={() => removeItem(item.id)}
                         disabled={isCompressing}
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50"
                       >
                         Remove
-                      </button>
+                      </ActionButton>
                     )}
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
