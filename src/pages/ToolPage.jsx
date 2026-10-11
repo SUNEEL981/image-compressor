@@ -478,32 +478,31 @@ export default function ToolPage({
 
 
 
-      <main className="relative min-h-screen w-full overflow-x-clip bg-[#faf9ff] text-gray-900">
+      <main className="relative min-h-screen w-full overflow-x-clip bg-white text-slate-900">
 
         {/* HERO */}
 
-        <section className="relative w-full overflow-hidden border-b border-violet-100 bg-gradient-to-br from-violet-50 via-white to-blue-50">
+        <section className="relative isolate w-full overflow-hidden border-b border-violet-100 bg-[radial-gradient(ellipse_at_top_left,_rgba(221,214,254,0.65),_transparent_42%),radial-gradient(ellipse_at_top_right,_rgba(191,219,254,0.55),_transparent_38%),linear-gradient(to_bottom,_#faf8ff,_#ffffff_78%)]">
 
-          <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-violet-200/40 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-32 -z-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
 
-          <div className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-blue-200/40 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-violet-300/40 blur-3xl" />
 
 
 
-          <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 py-14 text-center sm:px-6 sm:py-16 lg:px-10 lg:py-20">
+          <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-10 lg:py-24">
 
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-xs font-bold text-violet-700 shadow-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/90 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-violet-700 shadow-sm shadow-violet-900/5">
 
               <span className="h-2 w-2 rounded-full bg-gradient-to-r from-violet-600 to-blue-600" />
-
-              FREE ONLINE IMAGE TOOL
+              PIXNORA IMAGE TOOL
 
             </span>
 
 
 
             <h1
-              className="mx-auto mt-6 w-full max-w-5xl break-words text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
+              className="mx-auto mt-6 w-full max-w-5xl break-words text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-5xl lg:text-6xl xl:text-7xl"
               style={{ color: "#5b21b6", opacity: 1, WebkitTextFillColor: "#5b21b6" }}
             >
 
@@ -513,7 +512,7 @@ export default function ToolPage({
 
 
 
-            <p className="mx-auto mt-5 w-full max-w-3xl text-sm leading-7 text-gray-600 sm:text-base sm:leading-8">
+            <p className="mx-auto mt-5 w-full max-w-3xl text-sm leading-7 text-slate-600 sm:text-base sm:leading-8">
 
               {description}
 
@@ -529,7 +528,7 @@ export default function ToolPage({
 
                   key={item}
 
-                  className="rounded-full border border-violet-100 bg-white px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm"
+                  className="rounded-full border border-violet-100 bg-white/90 px-4 py-2 text-xs font-bold text-slate-600 shadow-sm shadow-violet-900/5"
 
                 >
 
@@ -555,7 +554,7 @@ export default function ToolPage({
 
           <section className="mx-auto mb-14 mt-10 w-full max-w-5xl sm:mt-12">
 
-            <div className="rounded-3xl border border-violet-100 bg-white p-3 shadow-[0_20px_70px_rgba(91,33,182,0.09)] sm:p-5 lg:p-7">
+            <div className="rounded-[1.75rem] border border-violet-100 bg-white p-3 shadow-[0_30px_90px_rgba(76,29,149,0.12)] sm:p-5 lg:p-7">
 
               {!file ? (
 
@@ -587,9 +586,9 @@ export default function ToolPage({
 
                     dragging
 
-                      ? "border-violet-500 bg-violet-50"
+                      ? "border-violet-500 bg-violet-50 ring-4 ring-violet-100"
 
-                      : "border-violet-200 bg-gradient-to-br from-violet-50/70 via-white to-blue-50/70 hover:border-violet-400"
+                       : "border-violet-200 bg-gradient-to-br from-violet-50/80 via-white to-blue-50/80 hover:border-violet-400 hover:shadow-lg hover:shadow-violet-900/5"
 
                   }`}
 
@@ -1221,7 +1220,7 @@ export default function ToolPage({
 
           {/* SEO CONTENT */}
 
-          <section className="mx-auto mb-12 w-full max-w-5xl rounded-3xl border border-violet-100 bg-white p-5 shadow-sm sm:p-8">
+          <section className="mx-auto mb-12 w-full max-w-5xl rounded-[1.75rem] border border-violet-100 bg-white p-5 shadow-[0_16px_50px_rgba(76,29,149,0.06)] sm:p-8">
 
             <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl">
 
@@ -1349,7 +1348,7 @@ export default function ToolPage({
 
 
 
-            <div className="mt-5 divide-y divide-violet-100 overflow-hidden rounded-2xl border border-violet-100 bg-white">
+            <div className="mt-5 divide-y divide-violet-100 overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-sm shadow-violet-900/5">
 
               {[
 
@@ -1425,7 +1424,7 @@ export default function ToolPage({
 
 
 
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
               {RELATED_TOOLS.map((tool) => (
 
