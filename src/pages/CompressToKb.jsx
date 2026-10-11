@@ -83,7 +83,7 @@ export default function CompressToKb() {
                 Free online image tool
               </div>
 
-              <h1 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+              <h1 className="text-4xl font-black tracking-tight !text-slate-950 sm:text-5xl lg:text-6xl">
                 Compress Image to{" "}
                 <span className="bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent">
                   Specific KB
